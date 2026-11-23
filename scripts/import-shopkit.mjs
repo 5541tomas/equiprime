@@ -4,6 +4,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { decodeHTML } from "entities";
 
 const dir = process.argv[2];
 const url = process.env.SUPABASE_URL;
@@ -21,6 +22,9 @@ function sanitize(html = "") {
     .replace(/\s(on\w+|style|class|id)\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
     .replace(/(href|src)\s*=\s*("|')\s*javascript:[^"']*\2/gi, "")
     .replace(/<p>\s*(&nbsp;)?\s*<\/p>/gi, "")
+    // &ccedil; -> ç (mantém &lt; &gt; &amp; &quot; para não partir o HTML)
+    .replace(/&(?!(lt|gt|amp|quot);)[a-z0-9#]+;/gi, (m) => (m === "&nbsp;" ? " " : decodeHTML(m)))
+    .replace(/ +(\.|,)/g, "$1")
     .trim();
 }
 
@@ -59,7 +63,7 @@ async function upsertBrand(b) {
   const slug = b.handle || slugify(b.title);
   const { data } = await sb.from("brands").select("id").eq("slug", slug).maybeSingle();
   if (data) return data.id;
-  const logo = await mirrorImage(b.image?.full);
+  const logo = b.image?.full && !b.image.full.includes("no-img") ? await mirrorImage(b.image.full) : null;
   const { data: ins, error } = await sb.from("brands").insert({ title: b.title, slug, logo_url: logo }).select("id").single();
   if (error) throw error;
   return ins.id;
@@ -132,5 +136,18 @@ for (const f of files) {
     if (ve) console.error("  ERRO variantes:", ve.message); else nv += variants.length;
   }
 }
+
+// árvore de categorias definitiva (mantém os endereços antigos do Shopkit)
+const tree = JSON.parse(readFileSync(new URL("./category-tree.json", import.meta.url), "utf8"));
+for (const [i, root] of tree.entries()) {
+  const { data: r } = await sb.from("categories")
+    .upsert({ slug: root.slug, title: root.title, parent_id: null, position: i, active: true }, { onConflict: "slug" }).select("id").single();
+  for (const [j, [slug, title]] of root.children.entries()) {
+    await sb.from("categories").upsert({ slug, title, parent_id: r.id, position: j, active: true }, { onConflict: "slug" });
+  }
+}
+// categorias fora da árvore ficam escondidas
+const known = tree.flatMap((r) => [r.slug, ...r.children.map((c) => c[0])]);
+await sb.from("categories").update({ active: false }).not("slug", "in", `(${known.join(",")})`);
 
 console.log(`\nConcluído: ${n} produtos, ${nv} variantes, ${[...imgCache.values()].filter(Boolean).length} imagens.`);

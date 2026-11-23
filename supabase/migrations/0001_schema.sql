@@ -107,7 +107,8 @@ $$;
 create or replace function public.protect_profile() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
-  if not public.is_admin() then
+  -- só se aplica a pedidos vindos do site (no SQL Editor auth.uid() é null)
+  if auth.uid() is not null and not public.is_admin() then
     new.is_admin := old.is_admin;
     if new.b2b_status is distinct from old.b2b_status
        and not (old.b2b_status in ('none','rejected') and new.b2b_status = 'pending') then
@@ -253,8 +254,12 @@ begin
     v_qty := greatest(1, least(999, coalesce((v_item->>'qty')::int, 1)));
     select * into v_prod from products where id = (v_item->>'product_id')::bigint and active;
     if not found then raise exception 'Produto indisponível'; end if;
-    v_var := null;
-    if v_item ? 'variant_id' and v_item->>'variant_id' is not null then
+    select * into v_var from variants where false; -- registo vazio (todos os campos null)
+    if (v_item->>'variant_id') is null
+       and exists (select 1 from variants where product_id = v_prod.id and active) then
+      raise exception 'Escolha uma opção para: %', v_prod.title;
+    end if;
+    if (v_item->>'variant_id') is not null then
       select * into v_var from variants
         where id = (v_item->>'variant_id')::bigint and product_id = v_prod.id and active;
       if not found then raise exception 'Variante indisponível: %', v_prod.title; end if;

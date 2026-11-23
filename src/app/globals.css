@@ -34,6 +34,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@layer components {
 .btn {
   @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold tracking-wide text-ivory transition hover:bg-leather-dark disabled:cursor-not-allowed disabled:opacity-50;
 }
@@ -49,6 +50,8 @@ body {
 .label { @apply mb-1 block text-xs font-semibold uppercase tracking-wider text-muted; }
 .card { @apply rounded-2xl border border-line bg-white; }
 .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.2em] text-leather; }
+
+}
 
 .prose-shop p { margin: 0 0 0.8em; }
 .prose-shop ul { list-style: disc; padding-left: 1.25em; margin: 0 0 0.8em; }

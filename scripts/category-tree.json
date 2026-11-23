@@ -1,0 +1,25 @@
+[
+  { "slug": "cavaleiro", "title": "Cavaleiro", "children": [
+    ["cavaleiro-toques", "Toques"], ["cavaleiro-calcas-mulher", "Calças Mulher"], ["cavaleiro-calcas-homem", "Calças Homem"],
+    ["sem-categoria-roupa-de-concurso-mulher", "Roupa de Concurso"], ["cavaleiro-camisolas", "Camisolas"],
+    ["cavaleiro-polos", "Polos"], ["cavaleiro-t-shirts", "T-shirts"], ["cavaleiro-meias", "Meias"],
+    ["cavaleiro-cinto", "Cintos"], ["cavaleiro-acessorios", "Acessórios"] ] },
+  { "slug": "cavalo", "title": "Cavalo", "children": [
+    ["cavalo-redeas", "Cabeçadas"], ["cavalo-cabecoes", "Cabeções"], ["cavalo-estribos", "Estribos"],
+    ["cavalo-cilhas", "Cilhas"], ["cavalo-selins-e-acessorios", "Selins e acessórios"], ["cavalo-suadouros", "Suadouros"],
+    ["cavalo-protetor-de-dorso", "Protetor de Dorso"], ["cavalo-mantas-de-algodao", "Mantas de Algodão"],
+    ["cavalo-cobrejao-inverno", "Cobrejão Inverno"], ["cavalo-orelheiras", "Orelheiras"] ] },
+  { "slug": "cavalo-protecoes", "title": "Proteções", "children": [
+    ["protecoes-caneleiras", "Caneleiras"], ["protecoes-protetores-de-boleto", "Protetores de Boleto"],
+    ["protecoes-cloches", "Cloches"], ["protecoes-ligaduras", "Ligaduras"] ] },
+  { "slug": "cuidados", "title": "Cuidados", "children": [
+    ["cuidados-champo", "Champô"], ["cuidados-crina-e-pelo", "Crina e Pelo"], ["cuidados-cascos", "Cascos"],
+    ["cuidados-couro", "Couro"], ["cuidados-likits", "Likits"] ] },
+  { "slug": "sem-categoria-estabulo", "title": "Estábulo", "children": [
+    ["estabulo-bebedouros", "Bebedouros"], ["estabulo-comedouros", "Comedouros"],
+    ["estabulo-rede-de-palha", "Rede de Palha"], ["estabulo-acessorios-de-limpeza", "Acessórios de Limpeza"] ] },
+  { "slug": "acessorios", "title": "Acessórios", "children": [["acessorios-luvas", "Luvas"]] },
+  { "slug": "nutricao-e-saude", "title": "Nutrição e Saúde", "children": [] },
+  { "slug": "tosquia", "title": "Tosquia", "children": [] },
+  { "slug": "seguranca", "title": "Segurança", "children": [] }
+]

@@ -8,7 +8,7 @@ export default function Gallery({ images, title }: { images: Img[]; title: strin
   const [i, setI] = useState(0);
   const cur = images[i];
   return (
-    <div className="lg:sticky lg:top-28 lg:self-start">
+    <div className="min-w-0 lg:sticky lg:top-28 lg:self-start">
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-white">
         {cur ? (
           <Image src={cur.url} alt={cur.alt || title} fill priority sizes="(max-width: 1024px) 100vw, 50vw" className="object-contain p-4" />

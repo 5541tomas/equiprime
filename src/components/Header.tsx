@@ -40,8 +40,8 @@ export default function Header({ tree }: { tree: Node[] }) {
           <Image src="/brand/logo-trim.png" alt="Equi Prime" width={140} height={58} priority className="h-11 w-auto" />
         </Link>
 
-        <nav className="ml-6 hidden flex-1 items-center gap-6 lg:flex">
-          {tree.slice(0, 7).map((c) => (
+        <nav className="ml-6 hidden flex-1 items-center gap-5 whitespace-nowrap lg:flex">
+          {tree.slice(0, 6).map((c) => (
             <div key={c.id} className="group relative">
               <Link href={`/category/${c.slug}`} className="py-4 text-sm font-medium hover:text-leather">{c.title}</Link>
               {c.children.length > 0 && (
@@ -58,7 +58,7 @@ export default function Header({ tree }: { tree: Node[] }) {
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
           <form onSubmit={search} className="relative hidden md:block">
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar…" className="input w-48 rounded-full pl-9 xl:w-60" aria-label="Pesquisar produtos" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar…" className="input w-44 rounded-full pl-9 xl:w-60" aria-label="Pesquisar produtos" />
             <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"><IconSearch size={16} /></span>
           </form>
           <Link href={session ? "/conta/lista-de-desejos" : "/conta"} className="rounded-full p-2 hover:bg-sand" aria-label="Lista de desejos"><IconHeart /></Link>

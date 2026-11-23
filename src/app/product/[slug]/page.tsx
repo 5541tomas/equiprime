@@ -11,6 +11,8 @@ import ProductCard from "@/components/ProductCard";
 
 type Props = { params: Promise<{ slug: string }> };
 export const revalidate = 300;
+// páginas geradas no primeiro acesso e guardadas em cache (ISR)
+export async function generateStaticParams() { return []; }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -72,7 +74,7 @@ export default async function ProductPage({ params }: Props) {
         {mainCat && <> / <Link href={`/category/${mainCat.slug}`} className="hover:text-ink">{mainCat.title}</Link></>}
       </nav>
 
-      <div className="grid gap-10 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-2 [&>*]:min-w-0">
         <Gallery images={p.images} title={p.title} />
         <div>
           {p.brands && (

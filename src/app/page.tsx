@@ -19,7 +19,7 @@ export default async function Home() {
   const catCovers = await Promise.all(
     roots.slice(0, 6).map(async (c) => {
       const ids = [c.id, ...c.children.map((x) => x.id)];
-      const [p] = await listProducts({ categoryIds: ids, limit: 1 });
+      const [p] = await listProducts({ categoryIds: ids, featured: true, limit: 1 }).then((r) => (r.length ? r : listProducts({ categoryIds: ids, limit: 1 })));
       return { ...c, cover: p?.images?.[0]?.url ?? null };
     })
   );
@@ -40,7 +40,7 @@ export default async function Home() {
               <Link href="/catalog?sort=novidades" className="btn-outline">Novidades</Link>
             </div>
           </div>
-          <div className="relative mx-auto aspect-square w-full max-w-md">
+          <div className="relative mx-auto hidden aspect-square w-full max-w-md md:block">
             <div className="absolute inset-0 rounded-full bg-ivory" />
             <Image src="/brand/icon.png" alt="" fill sizes="(max-width: 768px) 80vw, 420px" className="rounded-full object-contain p-16 mix-blend-multiply" priority />
           </div>
@@ -65,7 +65,11 @@ export default async function Home() {
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
           {catCovers.map((c) => (
             <Link key={c.id} href={`/category/${c.slug}`} className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-white">
-              {c.cover && <Image src={c.cover} alt="" fill sizes="(max-width: 768px) 50vw, 33vw" className="object-contain p-6 transition duration-500 group-hover:scale-105" />}
+              {c.cover ? (
+                <Image src={c.cover} alt="" fill sizes="(max-width: 768px) 50vw, 33vw" className="object-contain p-6 pb-14 transition duration-500 group-hover:scale-105" />
+              ) : (
+                <Image src="/brand/icon.png" alt="" fill sizes="33vw" className="object-contain p-10 pb-16 opacity-20" />
+              )}
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 pt-12">
                 <p className="font-serif text-2xl text-white md:text-3xl">{c.title}</p>
               </div>

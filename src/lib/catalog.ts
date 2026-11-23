@@ -5,9 +5,17 @@ import type { Brand, Category, Product } from "./types";
 const PRODUCT_COLS =
   "id,slug,title,excerpt,price,price_promo,images,featured,is_new,position,created_at,brand_id,brands(id,title,slug,logo_url)";
 
+/** Categorias ativas que têm produtos (diretamente ou nas subcategorias). */
 export const getCategories = cache(async (): Promise<Category[]> => {
-  const { data } = await publicDb().from("categories").select("id,parent_id,title,slug,position").order("position").order("title");
-  return (data ?? []) as Category[];
+  const sb = publicDb();
+  const [{ data }, { data: links }] = await Promise.all([
+    sb.from("categories").select("id,parent_id,title,slug,position").order("position").order("title"),
+    sb.from("product_categories").select("category_id,products!inner(active)").eq("products.active", true),
+  ]);
+  const all = (data ?? []) as Category[];
+  const used = new Set((links ?? []).map((l) => l.category_id as number));
+  const nonEmpty = (c: Category): boolean => used.has(c.id) || all.some((x) => x.parent_id === c.id && nonEmpty(x));
+  return all.filter(nonEmpty);
 });
 
 export const getBrands = cache(async (): Promise<Brand[]> => {
