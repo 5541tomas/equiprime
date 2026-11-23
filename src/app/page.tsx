@@ -1,103 +1,123 @@
+import Link from "next/link";
 import Image from "next/image";
+import ProductCard from "@/components/ProductCard";
+import { categoryTree, getBrands, getCategories, listProducts } from "@/lib/catalog";
+import { STORE } from "@/lib/config";
+import { euro } from "@/lib/format";
+import { IconTruck, IconWhatsApp } from "@/components/icons";
 
-export default function Home() {
+export const revalidate = 300;
+
+export default async function Home() {
+  const [cats, brands, featured, latest] = await Promise.all([
+    getCategories(), getBrands(), listProducts({ featured: true, limit: 8 }), listProducts({ sort: "novidades", limit: 8 }),
+  ]);
+  const roots = categoryTree(cats);
+  const highlight = featured.length >= 4 ? featured : latest;
+
+  // imagem representativa de cada categoria principal (primeiro produto)
+  const catCovers = await Promise.all(
+    roots.slice(0, 6).map(async (c) => {
+      const ids = [c.id, ...c.children.map((x) => x.id)];
+      const [p] = await listProducts({ categoryIds: ids, limit: 1 });
+      return { ...c, cover: p?.images?.[0]?.url ?? null };
+    })
+  );
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <>
+      {/* Hero */}
+      <section className="relative overflow-hidden border-b border-line bg-sand">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 md:grid-cols-2 md:py-24">
+          <div>
+            <p className="eyebrow">Equipamento equestre</p>
+            <h1 className="mt-4 font-serif text-5xl leading-[1.05] md:text-7xl">Para o cavaleiro<br />e para o cavalo.</h1>
+            <p className="mt-6 max-w-md text-muted">
+              Toques, estribos, proteções, mantas e cuidados das melhores marcas, escolhidos por quem monta.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/catalog" className="btn">Ver todos os produtos</Link>
+              <Link href="/catalog?sort=novidades" className="btn-outline">Novidades</Link>
+            </div>
+          </div>
+          <div className="relative mx-auto aspect-square w-full max-w-md">
+            <div className="absolute inset-0 rounded-full bg-ivory" />
+            <Image src="/brand/icon.png" alt="" fill sizes="(max-width: 768px) 80vw, 420px" className="rounded-full object-contain p-16 mix-blend-multiply" priority />
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </section>
+
+      {/* Vantagens */}
+      <section className="border-b border-line">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-6 text-sm sm:grid-cols-3">
+          <div className="flex items-center gap-3"><IconTruck className="text-leather" /> Portes {euro(STORE.shippingCost)} · grátis acima de {euro(STORE.freeShippingFrom)}</div>
+          <div className="flex items-center gap-3"><span className="text-[#1f8f4e]"><IconWhatsApp /></span> Encomendas confirmadas por WhatsApp</div>
+          <div className="flex items-center gap-3"><span className="font-serif text-xl text-leather">B2B</span> Condições especiais para revendedores</div>
+        </div>
+      </section>
+
+      {/* Categorias */}
+      <section className="mx-auto max-w-7xl px-4 py-16">
+        <div className="mb-8 flex items-end justify-between">
+          <h2 className="font-serif text-4xl">Categorias</h2>
+          <Link href="/catalog" className="text-sm font-medium underline-offset-4 hover:underline">Ver tudo</Link>
+        </div>
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+          {catCovers.map((c) => (
+            <Link key={c.id} href={`/category/${c.slug}`} className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-white">
+              {c.cover && <Image src={c.cover} alt="" fill sizes="(max-width: 768px) 50vw, 33vw" className="object-contain p-6 transition duration-500 group-hover:scale-105" />}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-4 pt-12">
+                <p className="font-serif text-2xl text-white md:text-3xl">{c.title}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Destaques */}
+      {highlight.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-16">
+          <div className="mb-8 flex items-end justify-between">
+            <h2 className="font-serif text-4xl">{featured.length >= 4 ? "Destaques" : "Novidades"}</h2>
+            <Link href="/catalog?sort=novidades" className="text-sm font-medium underline-offset-4 hover:underline">Ver mais</Link>
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+            {highlight.map((p, i) => <ProductCard key={p.id} p={p} priority={i < 4} />)}
+          </div>
+        </section>
+      )}
+
+      {/* Marcas */}
+      {brands.length > 0 && (
+        <section className="border-y border-line bg-white">
+          <div className="mx-auto max-w-7xl px-4 py-12">
+            <h2 className="mb-8 text-center font-serif text-3xl">As nossas marcas</h2>
+            <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6">
+              {brands.map((b) => (
+                <Link key={b.id} href={`/brand/${b.slug}`} className="opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0">
+                  {b.logo_url ? (
+                    <Image src={b.logo_url} alt={b.title} width={120} height={60} className="h-12 w-auto object-contain" />
+                  ) : (
+                    <span className="font-serif text-xl">{b.title}</span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Revenda */}
+      <section className="mx-auto max-w-7xl px-4 pt-16">
+        <div className="grid items-center gap-8 rounded-2xl border border-line bg-sand p-8 md:grid-cols-[1fr_auto] md:p-12">
+          <div>
+            <p className="eyebrow">Revendedores</p>
+            <h2 className="mt-2 font-serif text-4xl">Tem uma loja ou centro hípico?</h2>
+            <p className="mt-3 max-w-xl text-muted">Crie uma conta de revenda e, após aprovação, veja os preços profissionais sem IVA em toda a loja.</p>
+          </div>
+          <Link href="/revenda" className="btn">Pedir conta de revenda</Link>
+        </div>
+      </section>
+    </>
   );
 }

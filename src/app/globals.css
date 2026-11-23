@@ -1,26 +1,57 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ivory: #faf8f4;
+  --sand: #f1ece3;
+  --line: #e4ddd1;
+  --ink: #141414;
+  --muted: #6b665e;
+  --leather: #8c5a2b;
+  --leather-dark: #6f4520;
+  --ok: #2f6b3f;
+  --danger: #a33a2b;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-ivory: var(--ivory);
+  --color-sand: var(--sand);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-leather: var(--leather);
+  --color-leather-dark: var(--leather-dark);
+  --color-ok: var(--ok);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-body);
+  --font-serif: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html { scroll-behavior: smooth; }
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--ivory);
+  color: var(--ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold tracking-wide text-ivory transition hover:bg-leather-dark disabled:cursor-not-allowed disabled:opacity-50;
+}
+.btn-outline {
+  @apply inline-flex items-center justify-center gap-2 rounded-full border border-ink px-6 py-3 text-sm font-semibold tracking-wide text-ink transition hover:bg-ink hover:text-ivory;
+}
+.btn-whatsapp {
+  @apply inline-flex items-center justify-center gap-2 rounded-full bg-[#1f8f4e] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#18733e];
+}
+.input {
+  @apply w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm outline-none transition focus:border-ink;
+}
+.label { @apply mb-1 block text-xs font-semibold uppercase tracking-wider text-muted; }
+.card { @apply rounded-2xl border border-line bg-white; }
+.eyebrow { @apply text-xs font-semibold uppercase tracking-[0.2em] text-leather; }
+
+.prose-shop p { margin: 0 0 0.8em; }
+.prose-shop ul { list-style: disc; padding-left: 1.25em; margin: 0 0 0.8em; }
+.prose-shop ol { list-style: decimal; padding-left: 1.25em; margin: 0 0 0.8em; }
+.prose-shop strong, .prose-shop b { font-weight: 600; }
+.prose-shop h2, .prose-shop h3 { font-weight: 600; margin: 1em 0 0.4em; }
