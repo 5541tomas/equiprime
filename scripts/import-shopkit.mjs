@@ -10,7 +10,16 @@ const dir = process.argv[2];
 const url = process.env.SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!dir || !url || !key) { console.error("Falta pasta, SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY"); process.exit(1); }
-const sb = createClient(url, key, { auth: { persistSession: false } });
+// Com a chave injetada pelo proxy (valor "proxy-injected"), envia só o cabeçalho apikey.
+const proxyFetch = (input, init = {}) => {
+  const h = new Headers(init.headers);
+  h.delete("authorization");
+  return fetch(input, { ...init, headers: h });
+};
+const sb = createClient(url, key, {
+  auth: { persistSession: false },
+  ...(key === "proxy-injected" ? { global: { fetch: proxyFetch } } : {}),
+});
 
 const slugify = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
