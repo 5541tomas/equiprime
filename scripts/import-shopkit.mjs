@@ -92,7 +92,9 @@ for (const f of files) {
   const brandId = await upsertBrand(p.brand);
 
   const images = [];
-  for (const im of p.images ?? []) {
+  // produtos com uma só foto guardam-na em "image" e não em "images"
+  const srcImages = p.images?.length ? p.images : p.image?.full ? [p.image] : [];
+  for (const im of srcImages) {
     const u = await mirrorImage(im.full);
     if (u) images.push({ url: u, alt: im.alt || p.title });
   }
