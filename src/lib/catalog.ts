@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { publicDb } from "./supabase";
 import type { Brand, Category, Product } from "./types";
+import type { SearchIndex } from "./search";
 
 const PRODUCT_COLS =
   "id,slug,title,excerpt,price,price_promo,images,featured,is_new,position,created_at,brand_id,brands(id,title,slug,logo_url)";
@@ -9,7 +10,7 @@ const PRODUCT_COLS =
 export const getCategories = cache(async (): Promise<Category[]> => {
   const sb = publicDb();
   const [{ data }, { data: links }] = await Promise.all([
-    sb.from("categories").select("id,parent_id,title,slug,position").order("position").order("title"),
+    sb.from("categories").select("id,parent_id,title,slug,position").eq("active", true).order("position").order("title"),
     sb.from("product_categories").select("category_id,products!inner(active)").eq("products.active", true),
   ]);
   const all = (data ?? []) as Category[];
@@ -77,6 +78,35 @@ export async function getReviews(productId: number) {
     .order("created_at", { ascending: false });
   return data ?? [];
 }
+
+/** Índice leve para a pesquisa (produtos com marca e nomes das categorias). */
+export const getSearchIndex = cache(async (): Promise<SearchIndex> => {
+  const sb = publicDb();
+  const [cats, brands, { data: prods }] = await Promise.all([
+    getCategories(),
+    getBrands(),
+    sb.from("products")
+      .select("id,slug,title,price,price_promo,images,brands(title),product_categories(category_id)")
+      .eq("active", true),
+  ]);
+  const catById = new Map(cats.map((c) => [c.id, c]));
+  type Row = { id: number; slug: string; title: string; price: number; price_promo: number | null;
+    images: { url: string }[]; brands: { title: string } | null; product_categories: { category_id: number }[] };
+  return {
+    products: ((prods ?? []) as unknown as Row[]).map((p) => ({
+      id: p.id, slug: p.slug, title: p.title, price: Number(p.price),
+      price_promo: p.price_promo == null ? null : Number(p.price_promo),
+      image: p.images?.[0]?.url ?? null, brand: p.brands?.title ?? null,
+      cats: p.product_categories.map((pc) => {
+        const c = catById.get(pc.category_id);
+        const parent = c?.parent_id ? catById.get(c.parent_id) : null;
+        return [c?.title, parent?.title].filter(Boolean).join(" ");
+      }).join(" "),
+    })),
+    categories: cats.map((c) => ({ title: c.title, slug: c.slug, parent: c.parent_id ? catById.get(c.parent_id)?.title ?? null : null })),
+    brands: brands.map((b) => ({ title: b.title, slug: b.slug, logo: b.logo_url })),
+  };
+});
 
 /** Categoria + todas as subcategorias (ids). */
 export function descendantIds(all: Category[], rootId: number): number[] {

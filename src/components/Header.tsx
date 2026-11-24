@@ -2,26 +2,20 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import type { Category } from "@/lib/types";
 import { STORE } from "@/lib/config";
 import { euro } from "@/lib/format";
 import { IconBag, IconHeart, IconMenu, IconSearch, IconUser, IconX } from "./icons";
+import SearchBox from "./SearchBox";
 
 type Node = Category & { children: Category[] };
 
 export default function Header({ tree }: { tree: Node[] }) {
   const { cartCount, setCartOpen, session, isB2B, profile } = useStore();
   const [menu, setMenu] = useState(false);
-  const [q, setQ] = useState("");
-  const router = useRouter();
-
-  const search = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (q.trim()) { router.push(`/catalog?q=${encodeURIComponent(q.trim())}`); setMenu(false); }
-  };
+  const [mobileSearch, setMobileSearch] = useState(false);
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-ivory/95 backdrop-blur">
@@ -57,10 +51,10 @@ export default function Header({ tree }: { tree: Node[] }) {
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
-          <form onSubmit={search} className="relative hidden md:block">
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar…" className="input w-44 rounded-full pl-9 xl:w-60" aria-label="Pesquisar produtos" />
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"><IconSearch size={16} /></span>
-          </form>
+          <SearchBox />
+          <button onClick={() => setMobileSearch((v) => !v)} className="rounded-full p-2 hover:bg-sand md:hidden" aria-label="Pesquisar" aria-expanded={mobileSearch}>
+            <IconSearch />
+          </button>
           <Link href={session ? "/conta/lista-de-desejos" : "/conta"} className="rounded-full p-2 hover:bg-sand" aria-label="Lista de desejos"><IconHeart /></Link>
           <Link href={profile?.is_admin ? "/admin" : "/conta"} className="rounded-full p-2 hover:bg-sand" aria-label="A minha conta"><IconUser /></Link>
           <button onClick={() => setCartOpen(true)} className="relative rounded-full p-2 hover:bg-sand" aria-label="Carrinho">
@@ -72,6 +66,12 @@ export default function Header({ tree }: { tree: Node[] }) {
         </div>
       </div>
 
+      {mobileSearch && (
+        <div className="border-t border-line px-4 py-3 md:hidden">
+          <SearchBox variant="mobile" onNavigate={() => setMobileSearch(false)} />
+        </div>
+      )}
+
       {menu && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setMenu(false)} />
@@ -80,9 +80,9 @@ export default function Header({ tree }: { tree: Node[] }) {
               <Image src="/brand/logo-trim.png" alt="Equi Prime" width={120} height={50} className="h-10 w-auto" />
               <button onClick={() => setMenu(false)} aria-label="Fechar menu"><IconX /></button>
             </div>
-            <form onSubmit={search} className="mb-4">
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Pesquisar produtos…" className="input rounded-full" />
-            </form>
+            <div className="mb-4">
+              <SearchBox variant="mobile" onNavigate={() => setMenu(false)} />
+            </div>
             {tree.map((c) => (
               <details key={c.id} className="border-b border-line py-2">
                 <summary className="cursor-pointer list-none py-1 font-medium">{c.title}</summary>
