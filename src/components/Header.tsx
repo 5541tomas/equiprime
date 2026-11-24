@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useStore } from "@/lib/store";
 import type { Category } from "@/lib/types";
 import { STORE } from "@/lib/config";
 import { euro } from "@/lib/format";
-import { IconBag, IconHeart, IconMenu, IconSearch, IconUser, IconX } from "./icons";
+import { IconBag, IconHeart, IconMenu, IconSearch, IconUser } from "./icons";
 import SearchBox from "./SearchBox";
+import MobileMenu from "./MobileMenu";
 import { CHRISTMAS, christmasOn } from "@/lib/campaign";
 
 type Node = Category & { children: Category[] };
@@ -17,6 +18,7 @@ export default function Header({ tree }: { tree: Node[] }) {
   const { cartCount, setCartOpen, session, isB2B, profile } = useStore();
   const [menu, setMenu] = useState(false);
   const [mobileSearch, setMobileSearch] = useState(false);
+  const closeMenu = useCallback(() => setMenu(false), []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-ivory/95 backdrop-blur">
@@ -31,7 +33,7 @@ export default function Header({ tree }: { tree: Node[] }) {
       </div>
 
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
-        <button className="lg:hidden" onClick={() => setMenu(true)} aria-label="Abrir menu"><IconMenu /></button>
+        <button className="-ml-2 rounded-full p-2 hover:bg-sand lg:hidden" onClick={() => setMenu(true)} aria-label="Abrir menu" aria-expanded={menu}><IconMenu /></button>
 
         <Link href="/" className="shrink-0" aria-label="Equi Prime — início">
           <Image src="/brand/logo-trim.png" alt="Equi Prime" width={140} height={58} priority className="h-11 w-auto" />
@@ -76,33 +78,7 @@ export default function Header({ tree }: { tree: Node[] }) {
         </div>
       )}
 
-      {menu && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMenu(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-[85%] max-w-sm flex-col overflow-y-auto bg-ivory p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <Image src="/brand/logo-trim.png" alt="Equi Prime" width={120} height={50} className="h-10 w-auto" />
-              <button onClick={() => setMenu(false)} aria-label="Fechar menu"><IconX /></button>
-            </div>
-            <div className="mb-4">
-              <SearchBox variant="mobile" onNavigate={() => setMenu(false)} />
-            </div>
-            {tree.map((c) => (
-              <details key={c.id} className="border-b border-line py-2">
-                <summary className="cursor-pointer list-none py-1 font-medium">{c.title}</summary>
-                <Link href={`/category/${c.slug}`} onClick={() => setMenu(false)} className="block py-1.5 pl-3 text-sm text-leather">Ver tudo</Link>
-                {c.children.map((s) => (
-                  <Link key={s.id} href={`/category/${s.slug}`} onClick={() => setMenu(false)} className="block py-1.5 pl-3 text-sm">{s.title}</Link>
-                ))}
-              </details>
-            ))}
-            {christmasOn() && <Link href="/presentes-de-natal" onClick={() => setMenu(false)} className="border-b border-line py-3 font-semibold text-leather">Presentes de Natal 🎁</Link>}
-            <Link href="/brands" onClick={() => setMenu(false)} className="border-b border-line py-3 font-medium">Marcas</Link>
-            <Link href="/conta" onClick={() => setMenu(false)} className="border-b border-line py-3 font-medium">A minha conta</Link>
-            <Link href="/revenda" onClick={() => setMenu(false)} className="py-3 font-medium">Revendedores</Link>
-          </div>
-        </div>
-      )}
+      <MobileMenu tree={tree} open={menu} onClose={closeMenu} />
     </header>
   );
 }
