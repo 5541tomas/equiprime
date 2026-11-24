@@ -8,6 +8,7 @@ export default function ProductCard({ p, priority }: { p: Product; priority?: bo
   const img = p.images?.[0];
   const img2 = p.images?.[1];
   const promo = p.price_promo != null && p.price_promo < p.price;
+  const pct = promo ? Math.round((1 - Number(p.price_promo) / Number(p.price)) * 100) : 0;
   return (
     <div className="group relative">
       <Link href={`/product/${p.slug}`} className="block">
@@ -21,7 +22,7 @@ export default function ProductCard({ p, priority }: { p: Product; priority?: bo
             <Image src={img2.url} alt="" fill sizes="(max-width: 640px) 50vw, 25vw" className="object-contain p-3 opacity-0 transition duration-500 group-hover:opacity-100" />
           )}
           <div className="absolute left-3 top-3 flex flex-col gap-1">
-            {promo && <span className="rounded-full bg-leather px-2.5 py-1 text-[11px] font-semibold text-white">Promoção</span>}
+            {promo && <span className="rounded-full bg-leather px-2.5 py-1 text-[11px] font-semibold text-white">-{pct}%</span>}
             {p.is_new && <span className="rounded-full bg-ink px-2.5 py-1 text-[11px] font-semibold text-white">Novidade</span>}
           </div>
         </div>

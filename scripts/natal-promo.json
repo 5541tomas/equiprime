@@ -1,0 +1,5 @@
+{
+  "descricao": "Promoção de Natal 2026: 10% de desconto direto. Correr scripts/natal-promo.py remover depois do Natal.",
+  "desconto": 0.10,
+  "produtos": [53, 183, 7, 130, 127, 146, 136, 138, 1, 114, 169, 64, 191, 8, 194]
+}

@@ -5,6 +5,7 @@ import { StoreProvider } from "@/lib/store";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CartDrawer from "@/components/CartDrawer";
+import WelcomeOffer from "@/components/WelcomeOffer";
 import { STORE } from "@/lib/config";
 import { getCategories } from "@/lib/catalog";
 import { categoryTree } from "@/lib/catalog";
@@ -33,6 +34,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <main>{children}</main>
           <Footer tree={tree} />
           <CartDrawer />
+          <WelcomeOffer />
         </StoreProvider>
       </body>
     </html>

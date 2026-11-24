@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useStore } from "@/lib/store";
 import { db } from "@/lib/supabase";
 import { euro } from "@/lib/format";
-import { STORE } from "@/lib/config";
+import { STORE, WELCOME } from "@/lib/config";
 import { orderMessage, whatsappUrl, type PlacedOrder } from "@/lib/whatsapp";
 import { IconWhatsApp } from "@/components/icons";
 
@@ -187,6 +187,9 @@ export default function CheckoutPage() {
             <input className="input" placeholder="Código de desconto" value={couponInput} onChange={(e) => setCouponInput(e.target.value)} aria-label="Código de desconto" />
             <button type="button" onClick={applyCoupon} className="btn-outline px-4">Aplicar</button>
           </div>
+          {!coupon && !isB2B && !session && (
+            <p className="mt-2 text-xs text-muted">Primeira compra? Use <button type="button" className="font-semibold text-leather underline" onClick={() => setCouponInput(WELCOME.code)}>{WELCOME.code}</button> para ter {WELCOME.percent}% de desconto.</p>
+          )}
           {couponErr && <p className="mt-2 text-xs text-danger">{couponErr}</p>}
           {coupon && <p className="mt-2 text-xs text-ok">Cupão {coupon.code} aplicado.</p>}
 

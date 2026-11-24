@@ -9,3 +9,6 @@ export const STORE = {
   freeShippingFrom: 100,
   vat: 0.23,
 };
+
+// Desconto de boas-vindas (cupão criado no painel → Cupões)
+export const WELCOME = { code: "BEMVINDO10", percent: 10 };

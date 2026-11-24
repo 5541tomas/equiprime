@@ -16,6 +16,7 @@ export default async function Home() {
   const roots = categoryTree(cats);
   const highlight = featured.length >= 4 ? featured : latest;
   const xmas = christmasOn();
+  const onSale = xmas ? (await listProducts({ sort: "novidades" })).filter((p) => p.price_promo != null && Number(p.price_promo) < Number(p.price) && p.images?.length) : [];
   // fotos do topo: produtos em destaque com várias fotos (normalmente fotos com modelo/ambiente)
   const heroShots = [...featured, ...latest].filter((p, i, a) => p.images?.length > 1 && a.findIndex((x) => x.id === p.id) === i);
 
@@ -80,6 +81,22 @@ export default async function Home() {
           <div className="flex items-center gap-3"><span className="font-serif text-xl text-leather">B2B</span> Condições especiais para revendedores</div>
         </div>
       </section>
+
+      {/* Promoções de Natal */}
+      {xmas && onSale.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-16">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="eyebrow">Só até ao Natal</p>
+              <h2 className="mt-1 font-serif text-4xl">Promoções de Natal · −10%</h2>
+            </div>
+            <Link href="/presentes-de-natal#promocoes" className="text-sm font-medium underline-offset-4 hover:underline">Ver todas</Link>
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+            {onSale.slice(0, 8).map((p) => <ProductCard key={p.id} p={p} />)}
+          </div>
+        </section>
+      )}
 
       {/* Categorias */}
       <section className="mx-auto max-w-7xl px-4 py-16">

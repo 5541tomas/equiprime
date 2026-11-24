@@ -29,6 +29,7 @@ const giftOrder = (a: Product, b: Product) =>
 export default async function GiftsPage() {
   const [all, cats] = await Promise.all([listProducts({ sort: "novidades" }), getCategories()]);
   const withImg = all.filter((p) => p.images?.length);
+  const onSale = withImg.filter((p) => p.price_promo != null && Number(p.price_promo) < Number(p.price)).sort((a, b) => effectivePrice(a) - effectivePrice(b));
 
   const bySlug = (slug: string) => cats.find((c) => c.slug === slug);
   const idsOf = async (slugs: string[]) => {
@@ -48,18 +49,21 @@ export default async function GiftsPage() {
           <h1 className="mt-3 max-w-3xl font-serif text-5xl leading-tight md:text-6xl">Presentes para quem monta</h1>
           <p className="mt-4 max-w-xl text-ivory/75">Não sabe o que oferecer a quem anda a cavalo? Escolhemos ideias para todos os orçamentos — para o cavaleiro e para o cavalo.</p>
           <div className="mt-8 flex flex-wrap gap-2">
-            {[...BUDGETS.map((b) => ({ href: `#${b.id}`, label: b.title })), { href: "#cavaleiro", label: "Para o cavaleiro" }, { href: "#cavalo", label: "Para o cavalo" }].map((l) => (
+            {[{ href: "#promocoes", label: "−10% Promoções" }, ...BUDGETS.map((b) => ({ href: `#${b.id}`, label: b.title })), { href: "#cavaleiro", label: "Para o cavaleiro" }, { href: "#cavalo", label: "Para o cavalo" }].map((l) => (
               <a key={l.href} href={l.href} className="rounded-full border border-ivory/30 px-4 py-2 text-sm hover:bg-ivory hover:text-ink">{l.label}</a>
             ))}
           </div>
           <p className="mt-8 rounded-xl bg-white/10 p-4 text-sm">
-            🎁 Para receber antes do Natal, encomende até <strong>{CHRISTMAS.deadlineMainland}</strong> (Portugal continental) ou até <strong>{CHRISTMAS.deadlineIslandsEurope}</strong> (ilhas e Europa).
+            🎁 Para receber antes do Natal, encomende até <strong>{CHRISTMAS.deadlineMainland}</strong> (Portugal continental) ou até <strong>{CHRISTMAS.deadlineIslands}</strong> (Açores e Madeira). Para o resto da Europa, fale connosco.
             Portes grátis acima de 100 €.
           </p>
         </div>
       </section>
 
       <div className="mx-auto max-w-7xl px-4">
+        {onSale.length > 0 && (
+          <Shelf id="promocoes" title="Promoções de Natal · −10%" sub="Desconto direto, já aplicado no preço, até ao Natal" items={onSale} />
+        )}
         {BUDGETS.map((b) => {
           const items = withImg.filter((p) => { const x = effectivePrice(p); return x >= b.min && x < b.max; }).sort(giftOrder).slice(0, 8);
           if (!items.length) return null;
