@@ -1,13 +1,13 @@
 import Link from "next/link";
-import ProductCard from "./ProductCard";
-import SortSelect from "./SortSelect";
+import { Suspense } from "react";
+import FilteredGrid from "./FilteredGrid";
 import type { Category, Product } from "@/lib/types";
 
 export default function Listing({
-  title, intro, products, crumbs = [], subcats = [], sort,
+  title, intro, products, crumbs = [], subcats = [], sort, hideBrand,
 }: {
   title: string; intro?: string; products: Product[]; crumbs?: { href: string; label: string }[];
-  subcats?: Category[]; sort?: string;
+  subcats?: Category[]; sort?: string; hideBrand?: boolean;
 }) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
@@ -26,18 +26,15 @@ export default function Listing({
         </div>
       )}
 
-      <div className="mb-6 mt-8 flex items-center justify-between border-b border-line pb-4">
-        <p className="text-sm text-muted">{products.length} {products.length === 1 ? "produto" : "produtos"}</p>
-        <SortSelect value={sort ?? "relevancia"} />
+      <div className="mt-8">
+        {products.length === 0 ? (
+          <p className="py-20 text-center text-muted">Não encontrámos produtos.</p>
+        ) : (
+          <Suspense>
+            <FilteredGrid products={products} sort={sort} hideBrand={hideBrand} />
+          </Suspense>
+        )}
       </div>
-
-      {products.length === 0 ? (
-        <p className="py-20 text-center text-muted">Não encontrámos produtos.</p>
-      ) : (
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
-          {products.map((p, i) => <ProductCard key={p.id} p={p} priority={i < 4} />)}
-        </div>
-      )}
     </div>
   );
 }

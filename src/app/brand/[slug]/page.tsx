@@ -18,5 +18,5 @@ export default async function BrandPage({ params, searchParams }: Props) {
   const b = (await getBrands()).find((x) => x.slug === slug);
   if (!b) notFound();
   const products = await listProducts({ brandId: b.id, sort });
-  return <Listing title={b.title} products={products} sort={sort} crumbs={[{ href: "/brands", label: "Marcas" }, { href: `/brand/${b.slug}`, label: b.title }]} />;
+  return <Listing title={b.title} products={products} sort={sort} hideBrand crumbs={[{ href: "/brands", label: "Marcas" }, { href: `/brand/${b.slug}`, label: b.title }]} />;
 }

@@ -8,7 +8,7 @@ export default function SortSelect({ value }: { value: string }) {
   const params = useSearchParams();
   return (
     <label className="flex items-center gap-2 text-sm">
-      <span className="text-muted">Ordenar</span>
+      <span className="hidden text-muted sm:inline">Ordenar</span>
       <select
         value={value}
         onChange={(e) => {
@@ -16,7 +16,8 @@ export default function SortSelect({ value }: { value: string }) {
           p.set("sort", e.target.value);
           router.push(`${pathname}?${p.toString()}`);
         }}
-        className="rounded-full border border-line bg-white px-3 py-1.5"
+        className="max-w-[11rem] rounded-full border border-line bg-white px-3 py-1.5"
+        aria-label="Ordenar"
       >
         <option value="relevancia">Relevância</option>
         <option value="novidades">Novidades</option>

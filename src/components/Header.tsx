@@ -9,6 +9,7 @@ import { STORE } from "@/lib/config";
 import { euro } from "@/lib/format";
 import { IconBag, IconHeart, IconMenu, IconSearch, IconUser, IconX } from "./icons";
 import SearchBox from "./SearchBox";
+import { CHRISTMAS, christmasOn } from "@/lib/campaign";
 
 type Node = Category & { children: Category[] };
 
@@ -22,6 +23,8 @@ export default function Header({ tree }: { tree: Node[] }) {
       <div className="bg-ink px-4 py-2 text-center text-xs tracking-wide text-ivory">
         {isB2B ? (
           <>Conta de revenda ativa — preços apresentados sem IVA</>
+        ) : christmasOn() ? (
+          <Link href="/presentes-de-natal" className="hover:underline">🎁 Natal: encomende até <strong>{CHRISTMAS.deadlineMainland}</strong> para receber a tempo · Portes grátis acima de {euro(STORE.freeShippingFrom)}</Link>
         ) : (
           <>Portes {euro(STORE.shippingCost)} · <strong>grátis acima de {euro(STORE.freeShippingFrom)}</strong> · Portugal, ilhas e Europa</>
         )}
@@ -48,6 +51,7 @@ export default function Header({ tree }: { tree: Node[] }) {
             </div>
           ))}
           <Link href="/brands" className="text-sm font-medium hover:text-leather">Marcas</Link>
+          {christmasOn() && <Link href="/presentes-de-natal" className="text-sm font-semibold text-leather hover:underline">Presentes 🎁</Link>}
         </nav>
 
         <div className="ml-auto flex items-center gap-1 sm:gap-2">
@@ -92,6 +96,7 @@ export default function Header({ tree }: { tree: Node[] }) {
                 ))}
               </details>
             ))}
+            {christmasOn() && <Link href="/presentes-de-natal" onClick={() => setMenu(false)} className="border-b border-line py-3 font-semibold text-leather">Presentes de Natal 🎁</Link>}
             <Link href="/brands" onClick={() => setMenu(false)} className="border-b border-line py-3 font-medium">Marcas</Link>
             <Link href="/conta" onClick={() => setMenu(false)} className="border-b border-line py-3 font-medium">A minha conta</Link>
             <Link href="/revenda" onClick={() => setMenu(false)} className="py-3 font-medium">Revendedores</Link>

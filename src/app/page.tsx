@@ -5,6 +5,7 @@ import { categoryTree, getBrands, getCategories, listProducts } from "@/lib/cata
 import { STORE } from "@/lib/config";
 import { euro } from "@/lib/format";
 import { IconTruck, IconWhatsApp } from "@/components/icons";
+import { CHRISTMAS, christmasOn } from "@/lib/campaign";
 
 export const revalidate = 300;
 
@@ -14,6 +15,9 @@ export default async function Home() {
   ]);
   const roots = categoryTree(cats);
   const highlight = featured.length >= 4 ? featured : latest;
+  const xmas = christmasOn();
+  // fotos do topo: produtos em destaque com várias fotos (normalmente fotos com modelo/ambiente)
+  const heroShots = [...featured, ...latest].filter((p, i, a) => p.images?.length > 1 && a.findIndex((x) => x.id === p.id) === i);
 
   // imagem representativa de cada categoria principal (primeiro produto)
   const catCovers = await Promise.all(
@@ -26,24 +30,45 @@ export default async function Home() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden border-b border-line bg-sand">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 md:grid-cols-2 md:py-24">
+      {/* Hero: campanha de Natal até dia 25, depois mensagem normal — sempre com fotos reais */}
+      <section className={`relative overflow-hidden border-b border-line ${xmas ? "bg-ink text-ivory" : "bg-sand"}`}>
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 md:grid-cols-[1.1fr_1fr] md:py-20">
           <div>
-            <p className="eyebrow">Equipamento equestre</p>
-            <h1 className="mt-4 font-serif text-5xl leading-[1.05] md:text-7xl">Para o cavaleiro<br />e para o cavalo.</h1>
-            <p className="mt-6 max-w-md text-muted">
-              Toques, estribos, proteções, mantas e cuidados das melhores marcas, escolhidos por quem monta.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/catalog" className="btn">Ver todos os produtos</Link>
-              <Link href="/catalog?sort=novidades" className="btn-outline">Novidades</Link>
+            {xmas ? (
+              <>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#d9b27c]">Natal na Equi Prime</p>
+                <h1 className="mt-4 font-serif text-5xl leading-[1.05] md:text-7xl">Presentes para<br />quem monta.</h1>
+                <p className="mt-6 max-w-md text-ivory/75">
+                  Ideias para todos os orçamentos — para o cavaleiro e para o cavalo. Encomende até {CHRISTMAS.deadlineMainland} para receber antes do Natal.
+                </p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link href="/presentes-de-natal" className="btn bg-ivory text-ink hover:bg-white">Ver ideias de presente</Link>
+                  <Link href="/catalog" className="btn-outline border-ivory text-ivory hover:bg-ivory hover:text-ink">Todos os produtos</Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="eyebrow">Equipamento equestre</p>
+                <h1 className="mt-4 font-serif text-5xl leading-[1.05] md:text-7xl">Para o cavaleiro<br />e para o cavalo.</h1>
+                <p className="mt-6 max-w-md text-muted">Toques, estribos, proteções, mantas e cuidados das melhores marcas, escolhidos por quem monta.</p>
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link href="/catalog" className="btn">Ver todos os produtos</Link>
+                  <Link href="/catalog?sort=novidades" className="btn-outline">Novidades</Link>
+                </div>
+              </>
+            )}
+          </div>
+          {heroShots.length >= 3 && (
+            <div className="grid h-72 grid-cols-2 grid-rows-2 gap-3 md:h-[460px]">
+              {heroShots.slice(0, 3).map((p, i) => (
+                <Link key={p.id} href={`/product/${p.slug}`} className={`group relative overflow-hidden rounded-2xl bg-white ${i === 0 ? "row-span-2" : ""}`}>
+                  <Image src={p.images[0].url} alt={p.images[0].alt || p.title} fill priority sizes="(max-width: 768px) 50vw, 25vw"
+                    className="object-cover transition duration-700 group-hover:scale-105" />
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-3 pt-10 text-xs font-medium text-white">{p.title}</span>
+                </Link>
+              ))}
             </div>
-          </div>
-          <div className="relative mx-auto hidden aspect-square w-full max-w-md md:block">
-            <div className="absolute inset-0 rounded-full bg-ivory" />
-            <Image src="/brand/icon.png" alt="" fill sizes="(max-width: 768px) 80vw, 420px" className="rounded-full object-contain p-16 mix-blend-multiply" priority />
-          </div>
+          )}
         </div>
       </section>
 

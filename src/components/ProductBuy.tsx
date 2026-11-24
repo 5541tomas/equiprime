@@ -7,6 +7,7 @@ import { STORE } from "@/lib/config";
 import Price from "./Price";
 import QtyInput from "./QtyInput";
 import WishlistButton from "./WishlistButton";
+import SizeGuide from "./SizeGuide";
 import { IconWhatsApp } from "./icons";
 
 type P = { id: number; slug: string; title: string; price: number; price_promo: number | null; image: string | null };
@@ -74,6 +75,7 @@ export default function ProductBuy({ product, variants }: { product: P; variants
       {groups.length > 0 && variants.length > 1 && groups.map((g) => (
         <fieldset key={g.name} className="mt-6">
           <legend className="label">{g.name}{sel[g.name] && <span className="ml-1 normal-case tracking-normal text-ink">: {sel[g.name]}</span>}</legend>
+          {/^tamanho/i.test(g.name) && <SizeGuide productTitle={product.title} />}
           <div className="mt-2 flex flex-wrap gap-2">
             {g.values.map((val) => {
               // existe alguma variante disponível com este valor + as outras escolhas já feitas?

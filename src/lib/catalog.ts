@@ -4,7 +4,7 @@ import type { Brand, Category, Product } from "./types";
 import type { SearchIndex } from "./search";
 
 const PRODUCT_COLS =
-  "id,slug,title,excerpt,price,price_promo,images,featured,is_new,position,created_at,brand_id,brands(id,title,slug,logo_url)";
+  "id,slug,title,excerpt,price,price_promo,images,featured,is_new,position,created_at,brand_id,brands(id,title,slug,logo_url),variants(id,options,stock,active)";
 
 /** Categorias ativas que têm produtos (diretamente ou nas subcategorias). */
 export const getCategories = cache(async (): Promise<Category[]> => {
