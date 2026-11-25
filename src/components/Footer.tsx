@@ -3,6 +3,7 @@ import Image from "next/image";
 import { STORE } from "@/lib/config";
 import type { Category } from "@/lib/types";
 import NewsletterForm from "./NewsletterForm";
+import { COLLECTIONS } from "@/lib/collectionsData";
 
 export default function Footer({ tree }: { tree: (Category & { children: Category[] })[] }) {
   return (
@@ -19,12 +20,13 @@ export default function Footer({ tree }: { tree: (Category & { children: Categor
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <Image src="/brand/logo-trim.png" alt="Equi Prime" width={150} height={62} className="h-12 w-auto" />
-            <p className="mt-4 text-sm text-muted">Equipamento equestre de qualidade para cavaleiro e cavalo.</p>
+            <p className="mt-4 text-sm text-muted">Moda equestre e mimos para o cavalo — com marcas que dificilmente encontra noutras lojas.</p>
             <p className="mt-3 text-sm">{STORE.city}, Portugal</p>
           </div>
           <div>
             <p className="mb-3 text-sm font-semibold">Loja</p>
             <ul className="space-y-2 text-sm text-muted">
+              {COLLECTIONS.map((c) => (<li key={c.slug}><Link href={`/colecao/${c.slug}`} className="font-medium text-ink hover:underline">{c.title}</Link></li>))}
               {tree.slice(0, 6).map((c) => (<li key={c.id}><Link href={`/category/${c.slug}`} className="hover:text-ink">{c.title}</Link></li>))}
               <li><Link href="/brands" className="hover:text-ink">Marcas</Link></li>
             </ul>

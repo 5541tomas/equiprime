@@ -80,7 +80,7 @@ export default function SearchBox({ variant = "desktop", onNavigate }: { variant
           aria-controls={`${id}-list`}
           aria-activedescendant={active >= 0 ? `${id}-${items[active]?.key}` : undefined}
           autoComplete="off"
-          className={`input rounded-full pl-9 pr-8 ${variant === "desktop" ? "w-44 xl:w-60 focus:w-72 xl:focus:w-80 transition-[width]" : ""}`}
+          className={`input rounded-full pl-9 pr-8 ${variant === "desktop" ? "w-40 xl:w-48 2xl:w-64 2xl:focus:w-80 transition-[width]" : ""}`}
         />
         <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted"><IconSearch size={16} /></span>
         {q && (

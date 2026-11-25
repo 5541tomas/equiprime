@@ -10,6 +10,7 @@ import { euro } from "@/lib/format";
 import { IconBag, IconHeart, IconMenu, IconSearch, IconUser } from "./icons";
 import SearchBox from "./SearchBox";
 import MobileMenu from "./MobileMenu";
+import { COLLECTIONS } from "@/lib/collectionsData";
 import { CHRISTMAS, christmasOn } from "@/lib/campaign";
 
 type Node = Category & { children: Category[] };
@@ -39,9 +40,28 @@ export default function Header({ tree }: { tree: Node[] }) {
           <Image src="/brand/logo-trim.png" alt="Equi Prime" width={140} height={58} priority className="h-11 w-auto" />
         </Link>
 
-        <nav className="ml-6 hidden flex-1 items-center gap-5 whitespace-nowrap lg:flex">
-          {tree.slice(0, 6).map((c) => (
-            <div key={c.id} className="group relative">
+        <nav className="ml-5 hidden flex-1 items-center gap-4 whitespace-nowrap lg:flex 2xl:gap-5">
+          {/* coleções primeiro: é o que distingue a loja */}
+          {COLLECTIONS.map((col) => {
+            const sub = col.slug === "moda-equestre" ? tree.find((c) => c.slug === "cavaleiro")?.children ?? [] : [];
+            return (
+              <div key={col.slug} className="group relative">
+                <Link href={`/colecao/${col.slug}`} className="py-4 text-sm font-semibold hover:text-leather">{col.short}</Link>
+                {sub.length > 0 && (
+                  <div className="invisible absolute left-0 top-full z-50 min-w-56 rounded-xl border border-line bg-white p-3 opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100">
+                    <Link href={`/colecao/${col.slug}`} className="block rounded-lg px-3 py-2 text-sm font-semibold text-leather hover:bg-sand">Ver toda a coleção</Link>
+                    {sub.map((s) => (
+                      <Link key={s.id} href={`/category/${s.slug}`} className="block rounded-lg px-3 py-2 text-sm hover:bg-sand">{s.title}</Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+          <span className="hidden h-4 w-px bg-line xl:block" aria-hidden="true" />
+          {/* restantes categorias só quando há espaço (o menu lateral e "Marcas" mostram todas) */}
+          {tree.filter((c) => !["cavaleiro", "acessorios"].includes(c.slug)).slice(0, 4).map((c, i) => (
+            <div key={c.id} className={`group relative ${i < 2 ? "hidden xl:block" : "hidden 2xl:block"}`}>
               <Link href={`/category/${c.slug}`} className="py-4 text-sm font-medium hover:text-leather">{c.title}</Link>
               {c.children.length > 0 && (
                 <div className="invisible absolute left-0 top-full z-50 min-w-56 rounded-xl border border-line bg-white p-3 opacity-0 shadow-lg transition group-hover:visible group-hover:opacity-100">
@@ -52,7 +72,7 @@ export default function Header({ tree }: { tree: Node[] }) {
               )}
             </div>
           ))}
-          <Link href="/brands" className="text-sm font-medium hover:text-leather">Marcas</Link>
+          <Link href="/brands" className="hidden text-sm font-medium hover:text-leather xl:block">Marcas</Link>
           {christmasOn() && <Link href="/presentes-de-natal" className="text-sm font-semibold text-leather hover:underline">Presentes 🎁</Link>}
         </nav>
 

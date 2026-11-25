@@ -15,9 +15,9 @@ const body = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600"], var
 
 export const metadata: Metadata = {
   metadataBase: new URL(STORE.url),
-  title: { default: "Equi Prime — Equipamento Equestre", template: "%s | Equi Prime" },
+  title: { default: "Equi Prime — Moda Equestre e Mimos para o Cavalo", template: "%s | Equi Prime" },
   description:
-    "Loja online de equipamento equestre: artigos para cavaleiro e cavalo, proteções, cuidados e estábulo. Envios para Portugal, ilhas e Europa.",
+    "Moda equestre (Pomme, Maximilian Equestrian, Equestro) e mimos para o cavalo (Likit, Stud Muffins, Horslyx), além de equipamento e cuidados. Envios para Portugal, ilhas e Europa.",
   openGraph: { siteName: "Equi Prime", locale: "pt_PT", type: "website" },
   icons: { icon: "/brand/icon.png" },
 };

@@ -15,7 +15,7 @@ export default function Listing({
         <Link href="/" className="hover:text-ink">Início</Link>
         {crumbs.map((c) => (<span key={c.href}> / <Link href={c.href} className="hover:text-ink">{c.label}</Link></span>))}
       </nav>
-      <h1 className="font-serif text-5xl">{title}</h1>
+      {title && <h1 className="font-serif text-5xl">{title}</h1>}
       {intro && <p className="mt-3 max-w-2xl text-muted">{intro}</p>}
 
       {subcats.length > 0 && (

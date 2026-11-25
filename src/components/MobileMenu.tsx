@@ -10,6 +10,7 @@ import { STORE } from "@/lib/config";
 import { christmasOn } from "@/lib/campaign";
 import { useStore } from "@/lib/store";
 import SearchBox from "./SearchBox";
+import { COLLECTIONS } from "@/lib/collectionsData";
 import { IconHeart, IconUser, IconWhatsApp, IconX } from "./icons";
 
 type Node = Category & { children: Category[] };
@@ -83,6 +84,17 @@ export default function MobileMenu({ tree, open, onClose }: { tree: Node[]; open
               <span className="text-xl" aria-hidden="true">🎁</span>
             </Link>
           )}
+
+          {/* coleções */}
+          <div className="grid grid-cols-2 gap-2 px-5 pt-4">
+            {COLLECTIONS.map((col) => (
+              <Link key={col.slug} href={`/colecao/${col.slug}`} onClick={onClose}
+                className="rounded-2xl border border-line bg-white p-4">
+                <span className="block text-[10px] font-semibold uppercase tracking-[0.1em] text-leather">{col.eyebrow.replace("Para o ", "")}</span>
+                <span className="mt-1 block font-serif text-xl leading-tight">{col.title}</span>
+              </Link>
+            ))}
+          </div>
 
           {/* categorias */}
           <p className="px-5 pb-1 pt-6 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">Loja</p>
