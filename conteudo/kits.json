@@ -1,0 +1,19 @@
+[
+ {"slug":"kit-mimos-likit","title":"Kit Mimos Likit","tag":"Para o cavalo","items":[[130,1],[172,2]],"price":31.90,"cats":["cuidados-likits"],
+  "intro":"Tudo o que precisa para começar com os Likit: o suporte que se pendura na box e duas recargas para o cavalo se entreter (e recompensar) durante horas.",
+  "choices":"Escolha a cor do suporte. As recargas são de <strong>sabores sortidos</strong> — se tiver preferência (maçã, hortelã, cenoura, banana, cereja…), escreva-a nas notas da encomenda.",
+  "variants":[["Cor do suporte",["Azul","Rosa","Vermelho"]]]},
+ {"slug":"kit-natal-do-cavalo","title":"Kit Natal do Cavalo","tag":"Edição de Natal","items":[[53,1],[183,1],[7,1]],"price":35.90,"cats":["cuidados-likits"],
+  "intro":"O presente de Natal mais pedido pelos cavalos: um mimo por dia até ao Natal, guloseimas com sabor a pudim de Natal e um bolo para celebrar.",
+  "choices":"Edição limitada de Natal.","variants":[]},
+ {"slug":"kit-banho-gallop","title":"Kit Banho Gallop","tag":"Cuidados","items":[[106,1],[108,1],[105,1]],"price":31.50,"cats":["cuidados-champo"],
+  "intro":"O banho completo: champô para lavagem profunda, champô para remover manchas e condicionador para deixar a crina e o pelo macios e fáceis de pentear.",
+  "choices":"Condicionador em formato de 500 ml.","variants":[]},
+ {"slug":"kit-limpeza-arreios-belvoir","title":"Kit Limpeza de Arreios Belvoir","tag":"Cuidados do couro","items":[[4,1],[177,1],[5,1]],"price":40.90,"cats":["cuidados-couro"],
+  "intro":"O sistema Belvoir completo para manter selas, cabeçadas e rédeas limpas e hidratadas: limpar (passo 1), condicionar (passo 2) e as luvas de limpeza para aplicar.",
+  "choices":"Spray condicionador em formato de 500 ml.","variants":[]},
+ {"slug":"kit-concurso-amazona","title":"Kit Concurso Amazona","tag":"Moda equestre","items":[[162,1],[136,1],[146,1]],"price":154.90,"cats":["sem-categoria-roupa-de-concurso-mulher"],
+  "intro":"Pronta para o concurso da cabeça aos pés: polo de competição Equestro com brilhantes, luvas Equestro com logótipo brilhante e meias Equestro.",
+  "choices":"Escolha a cor e o tamanho do polo. Indique nas notas da encomenda o <strong>tamanho e a cor das luvas e das meias</strong> — ou confirmamos consigo por WhatsApp.",
+  "variants":[["Cor do polo",["Preto","Branco"]],["Tamanho",["XS","S","M","L","XL"]]]}
+]

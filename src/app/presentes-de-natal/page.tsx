@@ -31,7 +31,8 @@ const giftOrder = (a: Product, b: Product) =>
 export default async function GiftsPage() {
   const [all, cats] = await Promise.all([listProducts({ sort: "novidades" }), getCategories()]);
   const voucher = all.find((p) => isVoucherSlug(p.slug));
-  const withImg = all.filter((p) => p.images?.length && !isVoucherSlug(p.slug));
+  const kits = all.filter((p) => p.slug.startsWith("kit-") && p.images?.length);
+  const withImg = all.filter((p) => p.images?.length && !isVoucherSlug(p.slug) && !p.slug.startsWith("kit-"));
   const onSale = withImg.filter((p) => p.price_promo != null && Number(p.price_promo) < Number(p.price)).sort((a, b) => effectivePrice(a) - effectivePrice(b));
 
   const bySlug = (slug: string) => cats.find((c) => c.slug === slug);
@@ -52,7 +53,7 @@ export default async function GiftsPage() {
           <h1 className="mt-3 max-w-3xl font-serif text-5xl leading-tight md:text-6xl">Presentes para quem monta</h1>
           <p className="mt-4 max-w-xl text-ivory/75">Não sabe o que oferecer a quem anda a cavalo? Escolhemos ideias para todos os orçamentos — para o cavaleiro e para o cavalo.</p>
           <div className="mt-8 flex flex-wrap gap-2">
-            {[{ href: "#vales", label: "🎁 Vales de oferta" }, { href: "#promocoes", label: "−10% Promoções" }, ...BUDGETS.map((b) => ({ href: `#${b.id}`, label: b.title })), { href: "#cavaleiro", label: "Para o cavaleiro" }, { href: "#cavalo", label: "Para o cavalo" }].map((l) => (
+            {[{ href: "#vales", label: "🎁 Vales de oferta" }, { href: "#kits", label: "Kits" }, { href: "#promocoes", label: "−10% Promoções" }, ...BUDGETS.map((b) => ({ href: `#${b.id}`, label: b.title })), { href: "#cavaleiro", label: "Para o cavaleiro" }, { href: "#cavalo", label: "Para o cavalo" }].map((l) => (
               <a key={l.href} href={l.href} className="rounded-full border border-ivory/30 px-4 py-2 text-sm hover:bg-ivory hover:text-ink">{l.label}</a>
             ))}
           </div>
@@ -66,6 +67,9 @@ export default async function GiftsPage() {
       <div className="mx-auto max-w-7xl px-4">
         {voucher && (
           <section id="vales" className="scroll-mt-28 pt-16"><VoucherBanner image={voucher.images?.[0]?.url ?? null} /></section>
+        )}
+        {kits.length > 0 && (
+          <Shelf id="kits" title="Kits prontos a oferecer" sub="Combinações pensadas para presente — mais baratas do que em separado" items={kits} />
         )}
         {onSale.length > 0 && (
           <Shelf id="promocoes" title="Promoções de Natal · −10%" sub="Desconto direto, já aplicado no preço, até ao Natal" items={onSale} />

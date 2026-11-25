@@ -17,8 +17,9 @@ export default async function Home() {
     getCategories(), getBrands(), listProducts({ featured: true, limit: 8 }), listProducts({ sort: "novidades", limit: 8 }),
   ]);
   const roots = categoryTree(cats);
-  const highlight = (featured.length >= 4 ? featured : latest).filter((p) => !isVoucherSlug(p.slug));
+  const highlight = (featured.length >= 4 ? featured : latest).filter((p) => !isVoucherSlug(p.slug) && !p.slug.startsWith("kit-"));
   const xmas = christmasOn();
+  const kits = (await listProducts({ sort: "novidades" })).filter((p) => p.slug.startsWith("kit-") && p.images?.length && (xmas || p.slug !== "kit-natal-do-cavalo"));
   const voucher = xmas ? latest.find((p) => isVoucherSlug(p.slug)) ?? (await listProducts({})).find((p) => isVoucherSlug(p.slug)) : undefined;
   const collections = await Promise.all(COLLECTIONS.map(async (c) => ({ ...c, cover: await collectionCover(c) })));
   // marcas que distinguem a loja primeiro; as restantes a seguir
@@ -27,7 +28,7 @@ export default async function Home() {
     const ia = SIGNATURE.indexOf(a.slug), ib = SIGNATURE.indexOf(b.slug);
     return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.title.localeCompare(b.title, "pt");
   });
-  const onSale = xmas ? (await listProducts({ sort: "novidades" })).filter((p) => p.price_promo != null && Number(p.price_promo) < Number(p.price) && p.images?.length) : [];
+  const onSale = xmas ? (await listProducts({ sort: "novidades" })).filter((p) => p.price_promo != null && Number(p.price_promo) < Number(p.price) && p.images?.length && !p.slug.startsWith("kit-")) : [];
   // fotos do topo: produtos em destaque com várias fotos (normalmente fotos com modelo/ambiente)
   const heroShots = [...featured, ...latest].filter((p, i, a) => p.images?.length > 1 && a.findIndex((x) => x.id === p.id) === i);
 
@@ -128,6 +129,22 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      {/* Kits prontos a oferecer */}
+      {kits.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pt-16">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="eyebrow">Poupe ao comprar em conjunto</p>
+              <h2 className="mt-1 font-serif text-4xl">Kits prontos a oferecer</h2>
+            </div>
+            <Link href="/presentes-de-natal#kits" className="text-sm font-medium underline-offset-4 hover:underline">Ver todos</Link>
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+            {kits.slice(0, 4).map((p) => <ProductCard key={p.id} p={p} />)}
+          </div>
+        </section>
+      )}
 
       {/* Vales de oferta (época de Natal) */}
       {xmas && voucher && (
