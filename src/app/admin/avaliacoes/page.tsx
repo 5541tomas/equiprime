@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { db } from "@/lib/supabase";
 
-type R = { id: number; author_name: string; rating: number; comment: string; approved: boolean; created_at: string; products: { title: string; slug: string } | null };
+type R = { id: number; author_name: string; rating: number; comment: string; approved: boolean; created_at: string; order_id?: number | null; products: { title: string; slug: string } | null };
 
 export default function AdminReviews() {
   const [list, setList] = useState<R[]>([]);
-  const load = () => db().from("reviews").select("id,author_name,rating,comment,approved,created_at,products(title,slug)").order("approved").order("created_at", { ascending: false })
+  const load = () => db().from("reviews").select("*,products(title,slug)").order("approved").order("created_at", { ascending: false })
     .then(({ data }) => setList((data ?? []) as unknown as R[]));
   useEffect(() => { load(); }, []);
   const approve = async (r: R, v: boolean) => { await db().from("reviews").update({ approved: v }).eq("id", r.id); load(); };
@@ -20,7 +20,7 @@ export default function AdminReviews() {
       {list.map((r) => (
         <div key={r.id} className="flex flex-wrap items-start gap-4 p-4 text-sm">
           <div className="flex-1">
-            <p><span className="text-leather">{"★".repeat(r.rating)}</span> <strong>{r.author_name}</strong> sobre{" "}
+            <p><span className="text-leather">{"★".repeat(r.rating)}</span> <strong>{r.author_name}</strong>{r.order_id && <span className="text-xs text-emerald-800"> ✓ compra verificada (#{r.order_id})</span>} sobre{" "}
               {r.products && <Link href={`/product/${r.products.slug}`} className="underline" target="_blank">{r.products.title}</Link>}</p>
             {r.comment && <p className="mt-1 text-ink/85">{r.comment}</p>}
             <p className="mt-1 text-xs text-muted">{new Date(r.created_at).toLocaleString("pt-PT")}</p>

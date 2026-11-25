@@ -1,0 +1,40 @@
+// "Combina bem com…": que categorias completam cada tipo de produto.
+// Chave = categoria do produto; valor = categorias sugeridas (por ordem de preferência).
+export const COMPLEMENTS: Record<string, string[]> = {
+  "cavaleiro-calcas-mulher": ["cavaleiro-meias", "acessorios-luvas", "cavaleiro-cinto", "cavaleiro-polos"],
+  "cavaleiro-calcas-homem": ["cavaleiro-meias", "acessorios-luvas", "cavaleiro-cinto", "cavaleiro-polos"],
+  "sem-categoria-roupa-de-concurso-mulher": ["cavaleiro-calcas-mulher", "acessorios-luvas", "cavaleiro-meias"],
+  "cavaleiro-polos": ["cavaleiro-calcas-mulher", "cavaleiro-meias", "acessorios-luvas"],
+  "cavaleiro-t-shirts": ["cavaleiro-calcas-mulher", "cavaleiro-meias", "cavaleiro-camisolas"],
+  "cavaleiro-camisolas": ["cavaleiro-calcas-mulher", "cavaleiro-meias", "acessorios-luvas"],
+  "cavaleiro-toques": ["acessorios-luvas", "cavaleiro-acessorios", "cavaleiro-meias"],
+  "cavaleiro-meias": ["cavaleiro-calcas-mulher", "acessorios-luvas"],
+  "cavaleiro-cinto": ["cavaleiro-calcas-mulher", "cavaleiro-calcas-homem"],
+  "acessorios-luvas": ["cavaleiro-meias", "cavaleiro-toques", "cavaleiro-polos"],
+  "cavalo-suadouros": ["cavalo-orelheiras", "protecoes-ligaduras", "protecoes-caneleiras"],
+  "cavalo-orelheiras": ["cavalo-suadouros", "protecoes-ligaduras"],
+  "cavalo-cabecoes": ["cavalo-redeas", "cuidados-likits"],
+  "cavalo-redeas": ["cavalo-cabecoes", "cuidados-couro"],
+  "cavalo-estribos": ["cavalo-cilhas", "cavalo-protetor-de-dorso"],
+  "cavalo-cilhas": ["cavalo-estribos", "cavalo-protetor-de-dorso", "cavalo-suadouros"],
+  "cavalo-selins-e-acessorios": ["cavalo-cilhas", "cavalo-estribos", "cuidados-couro"],
+  "cavalo-protetor-de-dorso": ["cavalo-suadouros", "cavalo-cilhas"],
+  "cavalo-mantas-de-algodao": ["cavalo-cobrejao-inverno", "cuidados-crina-e-pelo"],
+  "cavalo-cobrejao-inverno": ["cavalo-mantas-de-algodao", "cuidados-likits"],
+  "protecoes-caneleiras": ["protecoes-protetores-de-boleto", "protecoes-cloches", "protecoes-ligaduras"],
+  "protecoes-protetores-de-boleto": ["protecoes-caneleiras", "protecoes-cloches"],
+  "protecoes-cloches": ["protecoes-caneleiras", "protecoes-protetores-de-boleto"],
+  "protecoes-ligaduras": ["protecoes-caneleiras", "cavalo-suadouros"],
+  "cuidados-champo": ["cuidados-crina-e-pelo", "estabulo-acessorios-de-limpeza"],
+  "cuidados-crina-e-pelo": ["cuidados-champo", "cuidados-cascos"],
+  "cuidados-cascos": ["cuidados-crina-e-pelo", "cuidados-champo"],
+  "cuidados-couro": ["cavalo-redeas", "cavalo-selins-e-acessorios"],
+  "cuidados-likits": ["cuidados-likits", "nutricao-e-saude"],
+  "estabulo-bebedouros": ["estabulo-comedouros", "estabulo-rede-de-palha"],
+  "estabulo-comedouros": ["estabulo-bebedouros", "estabulo-rede-de-palha", "cuidados-likits"],
+  "estabulo-rede-de-palha": ["estabulo-comedouros", "cuidados-likits"],
+  "tosquia": ["tosquia", "cavalo-mantas-de-algodao"],
+};
+
+/** Primeiras palavras do nome, para não sugerir o mesmo produto noutra cor. */
+export const baseName = (t: string) => t.toLowerCase().replace(/[-–].*$/, "").split(/\s+/).slice(0, 3).join(" ");

@@ -8,6 +8,7 @@ import ProductBuy from "@/components/ProductBuy";
 import Gallery from "@/components/Gallery";
 import Reviews from "@/components/Reviews";
 import ProductCard from "@/components/ProductCard";
+import { COMPLEMENTS, baseName } from "@/lib/complements";
 
 type Props = { params: Promise<{ slug: string }> };
 export const revalidate = 300;
@@ -37,6 +38,19 @@ export default async function ProductPage({ params }: Props) {
   const parentCat = mainCat?.parent_id ? cats.find((c) => c.id === mainCat.parent_id) : null;
   const related = mainCat
     ? (await listProducts({ categoryIds: [mainCat.id], limit: 9 })).filter((x) => x.id !== p.id).slice(0, 4)
+    : [];
+
+  // "Combina bem com…": categorias complementares (ex.: calças → meias, luvas, cintos)
+  const targetSlugs = [...new Set(myCats.flatMap((c) => COMPLEMENTS[c.slug] ?? []))];
+  const targetIds = targetSlugs.map((s) => cats.find((c) => c.slug === s)?.id).filter((x): x is number => !!x);
+  const seen = new Set([baseName(p.title), ...related.map((r) => baseName(r.title))]);
+  const complements = targetIds.length
+    ? (await listProducts({ categoryIds: targetIds }))
+        .filter((x) => x.id !== p.id && x.images?.length && !related.some((r) => r.id === x.id))
+        // ordem: categoria preferida primeiro, depois produtos em destaque/com mais fotos
+        .sort((a, b) => Number(b.featured) - Number(a.featured) || (b.images?.length ?? 0) - (a.images?.length ?? 0))
+        .filter((x) => { const k = baseName(x.title); if (seen.has(k)) return false; seen.add(k); return true; })
+        .slice(0, 4)
     : [];
 
   const avg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : null;
@@ -102,6 +116,16 @@ export default async function ProductPage({ params }: Props) {
           </details>
         </div>
       </div>
+
+      {complements.length > 0 && (
+        <section className="mt-20">
+          <h2 className="font-serif text-3xl">Combina bem com</h2>
+          <p className="mb-8 mt-1 text-sm text-muted">Escolhidos para completar a sua compra.</p>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4">
+            {complements.map((r) => <ProductCard key={r.id} p={r} />)}
+          </div>
+        </section>
+      )}
 
       <Reviews productId={p.id} reviews={reviews} />
 

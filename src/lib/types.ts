@@ -21,4 +21,5 @@ export type Order = {
   customer: Record<string, string>; items: (CartItem & { unit_price: number })[];
   subtotal: number; discount: number; shipping: number; total: number;
   coupon_code: string | null; notes: string | null; admin_notes: string | null; user_id: string | null;
+  review_token?: string; // existe depois de ativar as avaliações por link
 };

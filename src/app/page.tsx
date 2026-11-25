@@ -7,6 +7,8 @@ import { euro } from "@/lib/format";
 import { IconTruck, IconWhatsApp } from "@/components/icons";
 import { CHRISTMAS, christmasOn } from "@/lib/campaign";
 import { COLLECTIONS, collectionCover } from "@/lib/collections";
+import VoucherBanner from "@/components/VoucherBanner";
+import { isVoucherSlug } from "@/lib/voucher";
 
 export const revalidate = 300;
 
@@ -15,8 +17,9 @@ export default async function Home() {
     getCategories(), getBrands(), listProducts({ featured: true, limit: 8 }), listProducts({ sort: "novidades", limit: 8 }),
   ]);
   const roots = categoryTree(cats);
-  const highlight = featured.length >= 4 ? featured : latest;
+  const highlight = (featured.length >= 4 ? featured : latest).filter((p) => !isVoucherSlug(p.slug));
   const xmas = christmasOn();
+  const voucher = xmas ? latest.find((p) => isVoucherSlug(p.slug)) ?? (await listProducts({})).find((p) => isVoucherSlug(p.slug)) : undefined;
   const collections = await Promise.all(COLLECTIONS.map(async (c) => ({ ...c, cover: await collectionCover(c) })));
   // marcas que distinguem a loja primeiro; as restantes a seguir
   const SIGNATURE = ["pomme", "maximilian-equestrian", "equestro", "likit", "stud-muffins", "horslyx"];
@@ -125,6 +128,11 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      {/* Vales de oferta (época de Natal) */}
+      {xmas && voucher && (
+        <section className="mx-auto max-w-7xl px-4 pt-16"><VoucherBanner image={voucher.images?.[0]?.url ?? null} /></section>
+      )}
 
       {/* Categorias */}
       <section className="mx-auto max-w-7xl px-4 py-16">

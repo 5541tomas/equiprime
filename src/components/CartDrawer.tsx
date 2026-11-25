@@ -7,6 +7,7 @@ import { euro } from "@/lib/format";
 import { STORE } from "@/lib/config";
 import { IconX } from "./icons";
 import QtyInput from "./QtyInput";
+import ShippingNudge from "./ShippingNudge";
 
 export default function CartDrawer() {
   const { cart, cartOpen, setCartOpen, setQty, isB2B } = useStore();
@@ -42,6 +43,7 @@ export default function CartDrawer() {
                 </div>
               </div>
             )}
+            {!isB2B && <ShippingNudge missing={missing} onNavigate={() => setCartOpen(false)} />}
             <ul className="flex-1 divide-y divide-line overflow-y-auto px-5">
               {cart.map((i) => (
                 <li key={`${i.product_id}-${i.variant_id}`} className="flex gap-4 py-4">

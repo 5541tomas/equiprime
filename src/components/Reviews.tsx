@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import { db } from "@/lib/supabase";
 
-type R = { id: number; author_name: string; rating: number; comment: string; created_at: string };
+type R = { id: number; author_name: string; rating: number; comment: string; created_at: string; order_id?: number | null };
 
 const Stars = ({ n }: { n: number }) => (
   <span className="text-leather" aria-label={`${n} de 5 estrelas`}>{"★".repeat(n)}<span className="text-line">{"★".repeat(5 - n)}</span></span>
@@ -67,7 +67,7 @@ export default function Reviews({ productId, reviews }: { productId: number; rev
         {reviews.map((r) => (
           <li key={r.id} className="border-b border-line pb-6">
             <div className="flex items-center justify-between">
-              <p className="font-medium">{r.author_name}</p>
+              <p className="font-medium">{r.author_name}{r.order_id && <span className="ml-2 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-800">✓ Compra verificada</span>}</p>
               <p className="text-xs text-muted">{new Date(r.created_at).toLocaleDateString("pt-PT")}</p>
             </div>
             <Stars n={r.rating} />

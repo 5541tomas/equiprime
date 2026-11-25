@@ -4,13 +4,14 @@
 export type SearchProduct = {
   id: number; slug: string; title: string; price: number; price_promo: number | null;
   image: string | null; brand: string | null; cats: string; // nomes das categorias, juntos
+  variants: number; // n.º de variantes ativas (0 = pode ir direto para o carrinho)
 };
 export type SearchCategory = { title: string; slug: string; parent: string | null };
 export type SearchBrand = { title: string; slug: string; logo: string | null };
 export type SearchIndex = { products: SearchProduct[]; categories: SearchCategory[]; brands: SearchBrand[] };
 
 export const normalize = (s: string) =>
-  s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 const tokens = (q: string) => normalize(q).split(" ").filter(Boolean);
 

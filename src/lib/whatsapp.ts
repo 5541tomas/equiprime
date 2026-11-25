@@ -14,7 +14,7 @@ export function orderMessage(o: PlacedOrder, c: Record<string, string>, delivery
     "",
     `Subtotal: ${euro(o.subtotal)}${o.is_b2b ? " (s/ IVA)" : ""}`,
     ...(o.discount > 0 ? [`Desconto${coupon ? ` (${coupon.toUpperCase()})` : ""}: -${euro(o.discount)}`] : []),
-    `Envio: ${delivery === "levantamento" ? "Levantamento (a combinar)" : o.shipping > 0 ? `CTT ${euro(o.shipping)}` : "CTT grátis"}`,
+    `Envio: ${delivery === "digital" ? "Vale digital (enviar código por WhatsApp)" : delivery === "levantamento" ? "Levantamento (a combinar)" : o.shipping > 0 ? `CTT ${euro(o.shipping)}` : "CTT grátis"}`,
     `*Total: ${euro(o.total)}*${o.is_b2b ? " + IVA" : ""}`,
     "",
     `Nome: ${c.name}`,

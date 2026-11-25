@@ -8,7 +8,7 @@ type Kind = "roupa" | "cabeca" | "maos" | "cavalo" | "pes";
 
 /** Escolhe o tipo de guia pelo nome do produto. */
 export function sizeGuideKind(title: string): Kind | null {
-  const t = title.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const t = title.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   if (/toque|capacete/.test(t)) return "cabeca";
   if (/luva/.test(t)) return "maos";
   if (/manta|cobrejao|suadouro|protetor de dorso|orelheira|cabecada|cabecao|redea|caneleira|cloche|boleto|ligadura/.test(t)) return "cavalo";

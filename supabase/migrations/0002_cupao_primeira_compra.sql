@@ -1,4 +1,4 @@
--- Equi Prime — cupões só para a primeira compra (ex.: BEMVINDO10)
+-- Equi Prime — cupões só para a primeira compra (ex.: BEMVINDO10) e descontos que não se aplicam a vales de oferta
 -- Colar no Supabase → SQL Editor → Run. Pode ser corrido mais de uma vez.
 
 alter table public.coupons add column if not exists first_order_only boolean not null default false;
@@ -26,6 +26,7 @@ declare
   v_coupon record;
   v_free_ship boolean := false;
   v_order_id bigint;
+  v_disc_base numeric(10,2) := 0; -- valor sobre o qual se aplicam descontos (exclui vales de oferta)
 begin
   if p_delivery not in ('ctt','levantamento') then raise exception 'Entrega inválida'; end if;
   if jsonb_array_length(coalesce(p_items,'[]'::jsonb)) = 0 then raise exception 'Carrinho vazio'; end if;
@@ -59,6 +60,7 @@ begin
     end if;
 
     v_subtotal := v_subtotal + v_unit * v_qty;
+    if v_prod.slug not like 'vale-de-oferta%' then v_disc_base := v_disc_base + v_unit * v_qty; end if;
     v_items := v_items || jsonb_build_object(
       'product_id', v_prod.id, 'variant_id', v_var.id, 'title', v_prod.title,
       'variant', v_var.title, 'slug', v_prod.slug, 'qty', v_qty, 'unit_price', v_unit);
@@ -82,8 +84,8 @@ begin
       )) then
       raise exception 'O código % é válido apenas na primeira compra', v_coupon.code;
     end if;
-    if v_coupon.kind = 'percent' then v_discount := round(v_subtotal * v_coupon.value / 100, 2);
-    elsif v_coupon.kind = 'fixed' then v_discount := least(v_coupon.value, v_subtotal);
+    if v_coupon.kind = 'percent' then v_discount := round(v_disc_base * v_coupon.value / 100, 2);
+    elsif v_coupon.kind = 'fixed' then v_discount := least(v_coupon.value, v_disc_base);
     else v_free_ship := true; end if;
     update coupons set uses = uses + 1 where code = v_coupon.code;
   end if;

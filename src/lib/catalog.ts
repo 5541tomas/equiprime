@@ -72,7 +72,7 @@ export const getProduct = cache(async (slug: string) => {
 export async function getReviews(productId: number) {
   const { data } = await publicDb()
     .from("reviews")
-    .select("id,author_name,rating,comment,created_at")
+    .select("*") // inclui order_id (compra verificada) quando existir
     .eq("product_id", productId)
     .eq("approved", true)
     .order("created_at", { ascending: false });
@@ -86,17 +86,18 @@ export const getSearchIndex = cache(async (): Promise<SearchIndex> => {
     getCategories(),
     getBrands(),
     sb.from("products")
-      .select("id,slug,title,price,price_promo,images,brands(title),product_categories(category_id)")
+      .select("id,slug,title,price,price_promo,images,brands(title),product_categories(category_id),variants(id,active)")
       .eq("active", true),
   ]);
   const catById = new Map(cats.map((c) => [c.id, c]));
   type Row = { id: number; slug: string; title: string; price: number; price_promo: number | null;
-    images: { url: string }[]; brands: { title: string } | null; product_categories: { category_id: number }[] };
+    images: { url: string }[]; brands: { title: string } | null; product_categories: { category_id: number }[]; variants: { id: number; active: boolean }[] };
   return {
     products: ((prods ?? []) as unknown as Row[]).map((p) => ({
       id: p.id, slug: p.slug, title: p.title, price: Number(p.price),
       price_promo: p.price_promo == null ? null : Number(p.price_promo),
       image: p.images?.[0]?.url ?? null, brand: p.brands?.title ?? null,
+      variants: (p.variants ?? []).filter((v) => v.active).length,
       cats: p.product_categories.map((pc) => {
         const c = catById.get(pc.category_id);
         const parent = c?.parent_id ? catById.get(c.parent_id) : null;

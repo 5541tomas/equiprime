@@ -14,7 +14,7 @@ type F = {
   seo_title: string; seo_description: string; active: boolean; featured: boolean; is_new: boolean;
 };
 
-const slugify = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const slugify = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 const num = (s: string) => (s.trim() === "" ? null : Number(s.replace(",", ".")));
 const str = (n: number | null | undefined) => (n == null ? "" : String(n));
 

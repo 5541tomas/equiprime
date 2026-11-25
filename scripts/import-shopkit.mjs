@@ -21,7 +21,7 @@ const sb = createClient(url, key, {
   ...(key === "proxy-injected" ? { global: { fetch: proxyFetch } } : {}),
 });
 
-const slugify = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const slugify = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 /** Remove scripts, iframes, estilos inline e atributos perigosos da descrição. */
 function sanitize(html = "") {

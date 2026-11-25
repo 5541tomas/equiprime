@@ -10,6 +10,7 @@ import { STORE, WELCOME } from "@/lib/config";
 import { orderMessage, whatsappUrl, type PlacedOrder } from "@/lib/whatsapp";
 import { IconWhatsApp } from "@/components/icons";
 import { markCartConverted, saveCart } from "@/lib/cartTracking";
+import { isVoucherSlug } from "@/lib/voucher";
 
 const COUNTRIES = [
   "Portugal", "Portugal — Açores", "Portugal — Madeira", "Espanha", "França", "Alemanha", "Itália", "Bélgica",
@@ -49,12 +50,16 @@ export default function CheckoutPage() {
   }, [profile]);
 
   const subtotal = cart.reduce((s, i) => s + i.unit_price * i.qty, 0);
+  // só vales de oferta no carrinho → entrega digital, sem portes nem morada
+  const onlyVouchers = cart.length > 0 && cart.every((i) => isVoucherSlug(i.slug));
+  useEffect(() => { if (onlyVouchers) setDelivery("levantamento"); }, [onlyVouchers]);
+  const discountBase = cart.filter((i) => !isVoucherSlug(i.slug)).reduce((s, i) => s + i.unit_price * i.qty, 0);
   const discount = useMemo(() => {
     if (!coupon) return 0;
-    if (coupon.kind === "percent") return Math.round(subtotal * coupon.value) / 100;
-    if (coupon.kind === "fixed") return Math.min(coupon.value, subtotal);
+    if (coupon.kind === "percent") return Math.round(discountBase * coupon.value) / 100;
+    if (coupon.kind === "fixed") return Math.min(coupon.value, discountBase);
     return 0;
-  }, [coupon, subtotal]);
+  }, [coupon, discountBase]);
   const shipping = delivery === "levantamento" || coupon?.kind === "free_shipping" || subtotal - discount >= STORE.freeShippingFrom ? 0 : STORE.shippingCost;
   const total = subtotal - discount + shipping;
 
@@ -96,7 +101,7 @@ export default function CheckoutPage() {
       }).eq("id", session.user.id);
     }
     const order = data as PlacedOrder;
-    const url = whatsappUrl(orderMessage(order, customer, delivery, coupon?.code, notes.trim()));
+    const url = whatsappUrl(orderMessage(order, customer, onlyVouchers ? "digital" : delivery, coupon?.code, notes.trim()));
     const result = { order, url };
     try { sessionStorage.setItem(LAST, JSON.stringify(result)); } catch {}
     // espera (no máximo 1,5 s) que o carrinho fique marcado como encomendado antes de abrir o WhatsApp
@@ -152,6 +157,12 @@ export default function CheckoutPage() {
 
           <section>
             <h2 className="mb-4 text-lg font-semibold">Entrega</h2>
+            {onlyVouchers ? (
+              <div className="card flex items-start gap-3 border-ink p-4 ring-1 ring-ink">
+                <span className="text-xl" aria-hidden="true">🎁</span>
+                <span><span className="block font-medium">Vale digital — sem portes</span><span className="text-sm text-muted">Depois de confirmarmos o pagamento, enviamos o código do vale por WhatsApp.</span></span>
+              </div>
+            ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {([["ctt", "Envio por CTT", subtotal - discount >= STORE.freeShippingFrom ? "Grátis" : euro(STORE.shippingCost)], ["levantamento", "Levantamento", "Combinado por WhatsApp"]] as const).map(([k, t, d]) => (
                 <label key={k} className={`card flex cursor-pointer items-start gap-3 p-4 ${delivery === k ? "border-ink ring-1 ring-ink" : ""}`}>
@@ -160,7 +171,8 @@ export default function CheckoutPage() {
                 </label>
               ))}
             </div>
-            {delivery === "ctt" && (
+            )}
+            {delivery === "ctt" && !onlyVouchers && (
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2"><label className="label" htmlFor="address">Morada *</label><input id="address" className="input" required value={f.address} onChange={set("address")} autoComplete="street-address" /></div>
                 <div><label className="label" htmlFor="pc">Código postal *</label><input id="pc" className="input" required value={f.postal_code} onChange={set("postal_code")} autoComplete="postal-code" /></div>
@@ -203,7 +215,7 @@ export default function CheckoutPage() {
             <input className="input" placeholder="Código de desconto" value={couponInput} onChange={(e) => setCouponInput(e.target.value)} aria-label="Código de desconto" />
             <button type="button" onClick={applyCoupon} className="btn-outline px-4">Aplicar</button>
           </div>
-          {!coupon && !isB2B && !session && (
+          {!coupon && !isB2B && !session && !onlyVouchers && (
             <p className="mt-2 text-xs text-muted">Primeira compra? Use <button type="button" className="font-semibold text-leather underline" onClick={() => setCouponInput(WELCOME.code)}>{WELCOME.code}</button> para ter {WELCOME.percent}% de desconto.</p>
           )}
           {couponErr && <p className="mt-2 text-xs text-danger">{couponErr}</p>}

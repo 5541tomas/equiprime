@@ -2,7 +2,7 @@
 // num só valor apresentável, e ordena tamanhos de forma natural (XS, S, M… / 36, 38…).
 import type { Product } from "./types";
 
-const strip = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+const strip = (s: string) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
 
 const SYNONYMS: Record<string, string> = {
   pony: "Pónei", ponei: "Pónei", cob: "Cob", completo: "Completo", full: "Completo", "extra-cheio": "Extra-Cheio",

@@ -6,6 +6,8 @@ import { euro } from "@/lib/format";
 import type { Order } from "@/lib/types";
 import { STATUSES, STATUS_LABEL } from "@/lib/status";
 import { IconWhatsApp } from "@/components/icons";
+import VoucherIssuer from "@/components/VoucherIssuer";
+import { isVoucherSlug } from "@/lib/voucher";
 
 const COLORS: Record<string, string> = {
   pendente: "bg-amber-100 text-amber-900", confirmada: "bg-sky-100 text-sky-900", paga: "bg-emerald-100 text-emerald-900",
@@ -31,6 +33,14 @@ export default function AdminOrders() {
     setOrders((os) => os.map((o) => (o.id === id ? { ...o, ...patch } : o)));
   };
 
+  const reviewWa = (o: Order) => {
+    const phone = (o.customer.phone || "").replace(/\D/g, "");
+    const intl = phone.length === 9 ? `351${phone}` : phone;
+    const msg = `Olá ${o.customer.name?.split(" ")[0] ?? ""}! Esperamos que esteja a gostar da sua encomenda Equi Prime 🐴\n\n` +
+      `Podia deixar-nos a sua opinião? Leva menos de um minuto e ajuda muito outros cavaleiros a escolher:\n` +
+      `${window.location.origin}/avaliar?t=${o.review_token}\n\nObrigado!`;
+    return `https://wa.me/${intl}?text=${encodeURIComponent(msg)}`;
+  };
   const wa = (o: Order) => {
     const phone = (o.customer.phone || "").replace(/\D/g, "");
     const intl = phone.length === 9 ? `351${phone}` : phone;
@@ -74,15 +84,19 @@ export default function AdminOrders() {
                     <p>{o.customer.name} · {o.customer.phone}</p>
                     {o.customer.email && <p>{o.customer.email}</p>}
                     {o.customer.nif && <p>NIF {o.customer.nif}</p>}
-                    <p className="mt-1">{o.delivery === "levantamento" ? "Levantamento" : `${o.customer.address}, ${o.customer.postal_code} ${o.customer.city}, ${o.customer.country}`}</p>
+                    <p className="mt-1">{o.items.every((i) => isVoucherSlug(i.slug)) ? "Vale digital (sem envio)" : o.delivery === "levantamento" ? "Levantamento" : `${o.customer.address}, ${o.customer.postal_code} ${o.customer.city}, ${o.customer.country}`}</p>
                     <a href={wa(o)} target="_blank" rel="noopener" className="btn-whatsapp mt-3 px-4 py-2"><IconWhatsApp size={16} /> Falar com o cliente</a>
 
                     <p className="label mt-5">Estado</p>
                     <select className="input" value={o.status} onChange={(e) => update(o.id, { status: e.target.value })}>
                       {STATUSES.map((s) => <option key={s} value={s}>{STATUS_LABEL[s]}</option>)}
                     </select>
+                    {o.review_token && ["confirmada", "paga", "enviada", "concluida"].includes(o.status) && !o.items.every((i) => isVoucherSlug(i.slug)) && (
+                      <a href={reviewWa(o)} target="_blank" rel="noopener" className="btn-outline mt-3 px-4 py-2 text-xs">⭐ Pedir avaliação</a>
+                    )}
+                    <VoucherIssuer order={o} onNotes={(n) => setOrders((os) => os.map((x) => (x.id === o.id ? { ...x, admin_notes: n } : x)))} />
                     <p className="label mt-4">Notas internas</p>
-                    <textarea className="input min-h-16" defaultValue={o.admin_notes ?? ""} onBlur={(e) => update(o.id, { admin_notes: e.target.value })} placeholder="Ex.: pago por MB WAY, registo CTT…" />
+                    <textarea key={o.admin_notes ?? ""} className="input min-h-16" defaultValue={o.admin_notes ?? ""} onBlur={(e) => update(o.id, { admin_notes: e.target.value })} placeholder="Ex.: pago por MB WAY, registo CTT…" />
                   </div>
                 </div>
               )}
