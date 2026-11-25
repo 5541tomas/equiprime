@@ -7,6 +7,7 @@ import AuthForm from "@/components/AuthForm";
 
 const NAV = [
   ["/admin", "Encomendas"],
+  ["/admin/carrinhos", "Carrinhos abandonados"],
   ["/admin/produtos", "Produtos"],
   ["/admin/cupoes", "Cupões"],
   ["/admin/avaliacoes", "Avaliações"],

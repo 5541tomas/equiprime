@@ -9,6 +9,7 @@ import { euro } from "@/lib/format";
 import { STORE, WELCOME } from "@/lib/config";
 import { orderMessage, whatsappUrl, type PlacedOrder } from "@/lib/whatsapp";
 import { IconWhatsApp } from "@/components/icons";
+import { markCartConverted, saveCart } from "@/lib/cartTracking";
 
 const COUNTRIES = [
   "Portugal", "Portugal — Açores", "Portugal — Madeira", "Espanha", "França", "Alemanha", "Itália", "Bélgica",
@@ -66,6 +67,19 @@ export default function CheckoutPage() {
 
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
 
+  // carrinhos abandonados: regista que o cliente chegou ao checkout e, ao sair de cada campo, o contacto
+  useEffect(() => {
+    if (cart.length && !profile?.is_admin) saveCart(cart, { stage: "checkout" });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const rememberContact = () => {
+    if (!cart.length || profile?.is_admin) return;
+    const phoneOk = f.phone.replace(/\D/g, "").length >= 9;
+    const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim());
+    if (!phoneOk && !emailOk) return;
+    saveCart(cart, { stage: "checkout", contact: { name: f.name, phone: phoneOk ? f.phone : null, email: emailOk ? f.email : null } });
+  };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErr(""); setBusy(true);
@@ -85,6 +99,8 @@ export default function CheckoutPage() {
     const url = whatsappUrl(orderMessage(order, customer, delivery, coupon?.code, notes.trim()));
     const result = { order, url };
     try { sessionStorage.setItem(LAST, JSON.stringify(result)); } catch {}
+    // espera (no máximo 1,5 s) que o carrinho fique marcado como encomendado antes de abrir o WhatsApp
+    await Promise.race([markCartConverted(order.id), new Promise((r) => setTimeout(r, 1500))]);
     clearCart();
     setDone(result);
     setBusy(false);
@@ -127,9 +143,9 @@ export default function CheckoutPage() {
           <section>
             <h2 className="mb-4 text-lg font-semibold">Os seus dados</h2>
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2"><label className="label" htmlFor="name">Nome *</label><input id="name" className="input" required value={f.name} onChange={set("name")} autoComplete="name" /></div>
-              <div><label className="label" htmlFor="phone">Telemóvel / WhatsApp *</label><input id="phone" className="input" required type="tel" value={f.phone} onChange={set("phone")} autoComplete="tel" /></div>
-              <div><label className="label" htmlFor="email">E-mail</label><input id="email" className="input" type="email" value={f.email} onChange={set("email")} autoComplete="email" /></div>
+              <div className="sm:col-span-2"><label className="label" htmlFor="name">Nome *</label><input id="name" className="input" required value={f.name} onChange={set("name")} onBlur={rememberContact} autoComplete="name" /></div>
+              <div><label className="label" htmlFor="phone">Telemóvel / WhatsApp *</label><input id="phone" className="input" required type="tel" value={f.phone} onChange={set("phone")} onBlur={rememberContact} autoComplete="tel" /></div>
+              <div><label className="label" htmlFor="email">E-mail</label><input id="email" className="input" type="email" value={f.email} onChange={set("email")} onBlur={rememberContact} autoComplete="email" /></div>
               <div><label className="label" htmlFor="nif">NIF (para fatura)</label><input id="nif" className="input" value={f.nif} onChange={set("nif")} inputMode="numeric" /></div>
             </div>
           </section>

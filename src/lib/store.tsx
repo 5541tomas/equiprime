@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { db } from "./supabase";
 import type { CartItem } from "./types";
+import { saveCart } from "./cartTracking";
 
 export type Profile = {
   id: string; email: string | null; name: string | null; phone: string | null; nif: string | null;
@@ -23,6 +24,7 @@ type Ctx = {
   addToCart: (item: CartItem) => void;
   setQty: (product_id: number, variant_id: number | null, qty: number) => void;
   clearCart: () => void;
+  replaceCart: (items: CartItem[]) => void;
   cartOpen: boolean;
   setCartOpen: (v: boolean) => void;
   wishlist: Set<number>;
@@ -57,6 +59,18 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch {}
   }, [cart]);
+
+  // regista o carrinho (para "carrinhos abandonados"), 1,5 s depois da última alteração.
+  // A administração da loja não é registada, para não baralhar as estatísticas.
+  const loaded = useRef(false);
+  useEffect(() => {
+    if (!ready) return;
+    if (!loaded.current) { loaded.current = true; if (!cart.length) return; }
+    if (profile?.is_admin) return;
+    const contact = profile ? { name: profile.name, phone: profile.phone, email: profile.email } : undefined;
+    const t = setTimeout(() => saveCart(cart, { contact }), 1500);
+    return () => clearTimeout(t);
+  }, [cart, ready, profile]);
 
   const refreshProfile = useCallback(async () => {
     if (!session) { setProfile(null); setWishlist(new Set()); return; }
@@ -110,6 +124,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const clearCart = useCallback(() => setCart([]), []);
+  const replaceCart = useCallback((items: CartItem[]) => setCart(items), []);
 
   const toggleWishlist = useCallback(async (productId: number) => {
     if (!session) return "login" as const;
@@ -126,9 +141,9 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<Ctx>(() => ({
     ready, session, profile, isB2B, refreshProfile,
-    cart, cartCount: cart.reduce((s, i) => s + i.qty, 0), addToCart, setQty, clearCart,
+    cart, cartCount: cart.reduce((s, i) => s + i.qty, 0), addToCart, setQty, clearCart, replaceCart,
     cartOpen, setCartOpen, wishlist, toggleWishlist, wholesale,
-  }), [ready, session, profile, isB2B, refreshProfile, cart, addToCart, setQty, clearCart, cartOpen, wishlist, toggleWishlist, wholesale]);
+  }), [ready, session, profile, isB2B, refreshProfile, cart, addToCart, setQty, clearCart, replaceCart, cartOpen, wishlist, toggleWishlist, wholesale]);
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
 }

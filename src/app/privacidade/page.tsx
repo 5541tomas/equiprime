@@ -13,6 +13,7 @@ export default function Page() {
       <ul>
         <li>Processar e enviar as suas encomendas e emitir faturas;</li>
         <li>Gerir a sua conta de cliente e lista de desejos;</li>
+        <li>Guardar o seu carrinho e, se indicar o seu contacto no checkout e não concluir a encomenda, contactá-lo uma vez para o ajudar a concluí-la;</li>
         <li>Enviar a newsletter, apenas se a subscreveu (pode cancelar a qualquer momento).</li>
       </ul>
       <h2>Partilha</h2>
